@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1e192d"
+    android:fitsSystemWindows="true">
+
+    <!-- Background particle effect -->
+    <com.hejman.dx1221_ica1_project.MainMenu_Particle
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <!-- Settings button -->
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:src="@drawable/ui_settingsicon"
+        android:background="@drawable/settings_button_style"
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- MAIN MENU SCREEN -->
+    <LinearLayout
+        android:id="@+id/main_menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <!-- Game title -->
+        <TextView
+            android:id="@+id/game_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:text="ICA1 Game Demo"
+            android:textSize="28sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+        <!-- Main menu buttons -->
+        <Button
+            android:id="@+id/play_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="20dp"
+            android:text="PLAY"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+        <Button
+            android:id="@+id/highscore_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="20dp"
+            android:text="HIGHSCORE"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+        <Button
+            android:id="@+id/credits_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="20dp"
+            android:text="CREDITS"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+        <Button
+            android:id="@+id/quit_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="QUIT"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+    </LinearLayout>
+
+    <!-- CREDITS SCREEN -->
+    <LinearLayout
+        android:id="@+id/credits_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <!-- Credits title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:layout_marginBottom="50dp"
+            android:text="CREDITS"
+            android:textSize="32sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+        <!-- Credits content area -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Game developers -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Game Developers"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textAlignment="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:text="Hejy Tan &amp; Jonathan Ooi"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textAlignment="center" />
+
+            <!-- Designer -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Designed By"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textAlignment="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:text="Hejy Tan"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textAlignment="center" />
+
+            <!-- Version info -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Version 1.0.0"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textAlignment="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2025"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textAlignment="center" />
+
+        </LinearLayout>
+
+        <!-- Back button -->
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="40dp"
+            android:text="BACK"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+    </LinearLayout>
+
+    <!-- HIGHSCORE SCREEN -->
+    <LinearLayout
+        android:id="@+id/highscore_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <!-- Highscore title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:layout_marginBottom="30dp"
+            android:text="HIGHSCORE"
+            android:textSize="32sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+
+        <!-- Leaderboard header -->
+        <LinearLayout
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="NAME"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:gravity="left" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SCORE"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:gravity="right" />
+
+        </LinearLayout>
+
+        <!-- Scores list -->
+        <ScrollView
+            android:layout_width="320dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginBottom="30dp">
+
+            <LinearLayout
+                android:id="@+id/leaderboard_entries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            </LinearLayout>
+
+        </ScrollView>
+
+        <!-- No scores message -->
+        <TextView
+            android:id="@+id/no_entries_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:text="No entries in the leaderboard yet!\nPlay the game to set a score!"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:textAlignment="center"
+            android:visibility="gone" />
+
+        <!-- Highscore buttons -->
+        <Button
+            android:id="@+id/reset_leaderboard_button"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="20dp"
+            android:text="RESET LEADERBOARD"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+        <Button
+            android:id="@+id/back_button_highscore"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="40dp"
+            android:text="BACK"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_style" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
