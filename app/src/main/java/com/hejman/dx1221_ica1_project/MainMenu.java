@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SeekBar;
 import java.util.ArrayList;
 
 public class MainMenu extends Activity
@@ -18,9 +19,11 @@ public class MainMenu extends Activity
     private LinearLayout mainMenuContainer;
     private LinearLayout creditsContainer;
     private LinearLayout highscoreContainer;
+    private LinearLayout settingsContainer;
     private LinearLayout leaderboardEntries;
     private TextView noEntriesMessage;
     private LeaderboardManager leaderboardManager;
+    private SettingsManager settingsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -30,9 +33,10 @@ public class MainMenu extends Activity
 
         // Setup leaderboard manager
         leaderboardManager = new LeaderboardManager(this);
-
-        setupButtons();
+        settingsManager = new SettingsManager(this);
         setupContainers();
+        setupButtons();
+        updateLeaderboardDisplay();
     }
 
     // Setup all buttons and their click actions
@@ -47,7 +51,7 @@ public class MainMenu extends Activity
         Button backButtonHighscore = findViewById(R.id.back_button_highscore);
         Button resetLeaderboardButton = findViewById(R.id.reset_leaderboard_button);
         ImageButton settingsButton = findViewById(R.id.settings_button);
-
+        Button backButtonSettings = findViewById(R.id.back_button_settings);
         // Play game button
         playButton.setOnClickListener(new View.OnClickListener()
         {
@@ -101,7 +105,6 @@ public class MainMenu extends Activity
             {
                 leaderboardManager.clearScores();
                 updateLeaderboardDisplay();
-                Toast.makeText(MainMenu.this, "Leaderboard reset!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -119,7 +122,28 @@ public class MainMenu extends Activity
         {
             public void onClick(View v)
             {
-                Toast.makeText(MainMenu.this, "Settings button was pressed!", Toast.LENGTH_SHORT).show();
+                showSettings();
+            }
+        });
+
+        backButtonSettings.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                showMainMenu();
+            }
+        });
+
+        setupSliders();
+        ImageButton localSettingsBtn = findViewById(R.id.settings_button);
+
+        settingsManager.setSettingsButton(localSettingsBtn);
+
+        localSettingsBtn.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                showSettings();
             }
         });
     }
@@ -131,6 +155,7 @@ public class MainMenu extends Activity
         creditsContainer = findViewById(R.id.credits_container);
         highscoreContainer = findViewById(R.id.highscore_container);
         leaderboardEntries = findViewById(R.id.leaderboard_entries);
+        settingsContainer = findViewById(R.id.settings_container);
         noEntriesMessage = findViewById(R.id.no_entries_message);
     }
 
@@ -146,11 +171,17 @@ public class MainMenu extends Activity
         highscoreContainer.setVisibility(View.VISIBLE);
         updateLeaderboardDisplay();
     }
-
+    private void showSettings()
+    {
+        hideAllScreens();
+        settingsContainer.setVisibility(View.VISIBLE);
+        settingsManager.setButtonVisibility(false);
+    }
     private void showMainMenu()
     {
         hideAllScreens();
         mainMenuContainer.setVisibility(View.VISIBLE);
+        settingsManager.setButtonVisibility(true);
     }
 
     private void hideAllScreens()
@@ -158,6 +189,7 @@ public class MainMenu extends Activity
         mainMenuContainer.setVisibility(View.GONE);
         creditsContainer.setVisibility(View.GONE);
         highscoreContainer.setVisibility(View.GONE);
+        settingsContainer.setVisibility(View.GONE);
     }
 
     private void updateLeaderboardDisplay()
@@ -228,5 +260,13 @@ public class MainMenu extends Activity
     {
         LeaderboardManager manager = new LeaderboardManager(context);
         manager.addScore(playerName, score);
+    }
+    private void setupSliders() {
+        // Find the views
+        SeekBar musicSlider = findViewById(R.id.music_slider);
+        SeekBar sfxSlider = findViewById(R.id.sfx_slider);
+
+        // Let the manager handle the rest!
+        settingsManager.bindSliders(musicSlider, sfxSlider);
     }
 }
