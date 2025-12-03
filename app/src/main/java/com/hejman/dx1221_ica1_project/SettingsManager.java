@@ -5,19 +5,22 @@ import android.content.SharedPreferences;
 import android.widget.SeekBar;
 import android.widget.ImageButton;
 import android.view.View;
-public class SettingsManager {
+public class SettingsManager
+{
     private static final String PREF_NAME = "GameSettings";
     private static final String KEY_MUSIC = "music_vol";
     private static final String KEY_SFX = "sfx_vol";
     private ImageButton settingsButton;
     private SharedPreferences prefs;
 
-    public SettingsManager(Context context) {
+    public SettingsManager(Context context)
+    {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
     //    Set up sliders from Mainmenu class
-    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider) {
+    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider)
+    {
         musicSlider.setProgress(getMusicVolume());
         sfxSlider.setProgress(getSFXVolume());
 
@@ -42,30 +45,36 @@ public class SettingsManager {
         });
     }
 
-    public int getMusicVolume() {
+    public int getMusicVolume()
+    {
         return prefs.getInt(KEY_MUSIC, 100);
     }
 
-    public int getSFXVolume() {
+    public int getSFXVolume()
+    {
         return prefs.getInt(KEY_SFX, 100);
     }
 
-    private void saveMusicVolume(int volume) {
+    private void saveMusicVolume(int volume)
+    {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(KEY_MUSIC, volume);
         editor.apply();
     }
 
-    private void saveSFXVolume(int volume) {
+    private void saveSFXVolume(int volume)
+    {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(KEY_SFX, volume);
         editor.apply();
     }
-    public void setSettingsButton(ImageButton button) {
+    public void setSettingsButton(ImageButton button)
+    {
         this.settingsButton = button;
     }
 
-    public void setButtonVisibility(boolean isVisible) {
+    public void setButtonVisibility(boolean isVisible)
+    {
         if (settingsButton != null) {
             if (isVisible) {
                 settingsButton.setVisibility(View.VISIBLE);

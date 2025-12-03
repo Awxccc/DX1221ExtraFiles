@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Random;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 public class GameLogic extends View
 {
@@ -23,6 +25,10 @@ public class GameLogic extends View
 
     // Colour Variables
     private Paint playerColor, nodeColor, oldNodeColor;
+
+    // Score Variables
+    private int score = 0;
+    private Paint scorePaint;
 
     // Node Class
     private class Node
@@ -77,6 +83,13 @@ public class GameLogic extends View
         oldNodeColor = new Paint();
         oldNodeColor.setColor(0xFF800000); // Dark red
         oldNodeColor.setAntiAlias(true);
+
+        scorePaint = new Paint();
+        scorePaint.setColor(0xFFFFFFFF); // White
+        scorePaint.setTextSize(60);
+        scorePaint.setAntiAlias(true);
+        scorePaint.setFakeBoldText(true);
+        scorePaint.setTextAlign(Paint.Align.RIGHT);
     }
 
     @Override
@@ -197,6 +210,7 @@ public class GameLogic extends View
                 }
             }
         }
+        canvas.drawText("Distance: " + score, gameAreaWidth - 50, 150, scorePaint);
 
         updateGameLogic();
         invalidate();
@@ -213,6 +227,7 @@ public class GameLogic extends View
             createMoreNodes();
             lastNodeSpawnY = playerY;
         }
+        score = (int) Math.abs(playerY / 100);
 
         removeOldNodes();
     }
@@ -292,5 +307,9 @@ public class GameLogic extends View
             }
         }
         return true;
+    }
+    public int getScore()
+    {
+        return score;
     }
 }
