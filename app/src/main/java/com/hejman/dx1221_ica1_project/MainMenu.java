@@ -2,6 +2,7 @@ package com.hejman.dx1221_ica1_project;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -52,7 +53,8 @@ public class MainMenu extends Activity
         {
             public void onClick(View v)
             {
-                Toast.makeText(MainMenu.this, "Play button was pressed!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainMenu.this, GameScene.class);
+                startActivity(intent);
             }
         });
 

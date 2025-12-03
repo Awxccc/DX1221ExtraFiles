@@ -48,7 +48,7 @@ public class LeaderboardManager
         String scoresString = prefs.getString("scores", "");
 
         // If we have something to display
-        if (!scoresString.equals(""))
+        if (!scoresString.isEmpty())
         {
             String[] entries = scoresString.split(";");
 
