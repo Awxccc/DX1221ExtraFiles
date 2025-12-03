@@ -1,0 +1,9 @@
+<!-- res/drawable/custom_slider_thumb.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+            <size android:width="30dp" android:height="30dp" /> <!-- Adjust width and height as needed -->
+        </shape>
+    </item>
+</layer-list>
