@@ -8,8 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Random;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 public class GameLogic extends View
 {
@@ -24,11 +22,13 @@ public class GameLogic extends View
     private float nodeSize = 60f;
 
     // Colour Variables
-    private Paint playerColor, nodeColor, oldNodeColor;
+    private Paint playerColor, nodeColor, oldNodeColor, scoreColor;
 
     // Score Variables
     private int score = 0;
-    private Paint scorePaint;
+
+    // BG variable
+    private BackgroundEntity background;
 
     // Node Class
     private class Node
@@ -84,12 +84,12 @@ public class GameLogic extends View
         oldNodeColor.setColor(0xFF800000); // Dark red
         oldNodeColor.setAntiAlias(true);
 
-        scorePaint = new Paint();
-        scorePaint.setColor(0xFFFFFFFF); // White
-        scorePaint.setTextSize(60);
-        scorePaint.setAntiAlias(true);
-        scorePaint.setFakeBoldText(true);
-        scorePaint.setTextAlign(Paint.Align.RIGHT);
+        scoreColor = new Paint();
+        scoreColor.setColor(0xFFFFFFFF); // White
+        scoreColor.setTextSize(60);
+        scoreColor.setAntiAlias(true);
+        scoreColor.setFakeBoldText(true);
+        scoreColor.setTextAlign(Paint.Align.RIGHT);
     }
 
     @Override
@@ -109,6 +109,8 @@ public class GameLogic extends View
         cameraX = playerX;
         cameraY = playerY;
 
+        // BG here
+        background = new BackgroundEntity(getContext(), width, height);
         createInitialNodes();
     }
 
@@ -187,6 +189,9 @@ public class GameLogic extends View
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
+
+        background.update(); // BG first so its behind everything
+        background.draw(canvas);
         updateCamera();
 
         float playerScreenX = playerX - cameraX + (gameAreaWidth / 2f);
@@ -210,7 +215,7 @@ public class GameLogic extends View
                 }
             }
         }
-        canvas.drawText("Distance: " + score, gameAreaWidth - 50, 150, scorePaint);
+        canvas.drawText("Distance: " + score, gameAreaWidth - 50, 150, scoreColor);
 
         updateGameLogic();
         invalidate();
