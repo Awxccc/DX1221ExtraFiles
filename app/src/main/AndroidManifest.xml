@@ -13,13 +13,17 @@
         android:theme="@style/Theme.DX1221_ICA1_Project">
 
         <activity
-            android:name=".MainMenu"
+            android:name=".SplashScene"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainMenu"
+            android:exported="false" />
 
         <activity
             android:name=".GameScene"

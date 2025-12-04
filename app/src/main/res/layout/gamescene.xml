@@ -7,7 +7,7 @@
     android:background="#1e192d"
     android:fitsSystemWindows="true">
 
-    <!-- Background particle effect -->
+    <!-- Background Particle Effect -->
     <com.hejman.dx1221_ica1_project.MainMenu_Particle
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,41 +22,64 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/control_layout" />
+        app:layout_constraintBottom_toTopOf="@+id/bottom_bar_image" />
 
-    <!-- Horizontal bar at bottom -->
-    <LinearLayout
-        android:id="@+id/control_layout"
+    <!-- Bottom Bar Image -->
+    <ImageView
+        android:id="@+id/bottom_bar_image"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:background="#333333"
-        android:gravity="center"
+        android:src="@drawable/ui_bottombar"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintRight_toRightOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tap the nodes to travel through the network!"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+    <!-- Score display -->
+    <TextView
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/instruction_text"
+        app:layout_constraintLeft_toLeftOf="@+id/bottom_bar_image"
+        app:layout_constraintRight_toRightOf="@+id/bottom_bar_image"
+        app:layout_constraintTop_toTopOf="@+id/bottom_bar_image"
+        app:layout_constraintVertical_bias="0.3"
+        android:layout_marginBottom="8dp" />
 
-    </LinearLayout>
+    <!-- Instruction text -->
+    <TextView
+        android:id="@+id/instruction_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap the nodes to travel through the network!"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_bar_image"
+        app:layout_constraintLeft_toLeftOf="@+id/bottom_bar_image"
+        app:layout_constraintRight_toRightOf="@+id/bottom_bar_image"
+        app:layout_constraintTop_toTopOf="@+id/bottom_bar_image"
+        app:layout_constraintVertical_bias="0.95"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Back button -->
+    <!-- Quit button -->
     <Button
-        android:id="@+id/back_to_menu_button"
+        android:id="@+id/quit_button"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/button_style"
-        android:text="BACK"
+        android:text="QUIT"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
