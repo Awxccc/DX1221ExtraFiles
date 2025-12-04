@@ -22,7 +22,7 @@ public class GameLogic extends View
     private float nodeSize = 60f;
 
     // Colour Variables
-    private Paint playerColor, nodeColor, oldNodeColor, scoreColor;
+    private Paint playerColor, nodeColor, oldNodeColor, scoreColor, tunnellerNodeColor, trailPaint;
 
     // Score Variables
     private int score = 0;
@@ -30,12 +30,25 @@ public class GameLogic extends View
     // BG variable
     private BackgroundEntity background;
 
+    //Power up Variables
+    private static final int POWERUP_NONE = 0;
+    private static final int POWERUP_TUNNELLER = 1;
+    private final long TUNNELLER_DURATION = 3000;
+    private int activePowerUpType = POWERUP_NONE;
+    private long powerUpEndTime = 0;
+    private long powerUpActionTimer = 0;
+
+    //Trail line renderer
+    private ArrayList<float[]> trailSegments = new ArrayList<>();
+    private static final float TRAIL_TYPE_NORMAL = 0f;
+    private static final float TRAIL_TYPE_TUNNELLER = 1f;
+
     // Node Class
     private class Node
     {
         float x, y;
         boolean active = true; // Is the player allowed to click on it
-
+        int powerUpType = POWERUP_NONE;
         Node(float x, float y)
         {
             this.x = x;
@@ -90,6 +103,15 @@ public class GameLogic extends View
         scoreColor.setAntiAlias(true);
         scoreColor.setFakeBoldText(true);
         scoreColor.setTextAlign(Paint.Align.RIGHT);
+
+        tunnellerNodeColor = new Paint();
+        tunnellerNodeColor.setColor(0xFF00FFFF); // Cyan
+        tunnellerNodeColor.setAntiAlias(true);
+
+        trailPaint = new Paint();
+        trailPaint.setStrokeWidth(30f);
+        trailPaint.setStrokeCap(Paint.Cap.ROUND);
+        trailPaint.setAntiAlias(true);
     }
 
     @Override
@@ -194,6 +216,31 @@ public class GameLogic extends View
         background.draw(canvas);
         updateCamera();
 
+        // Render the trail paths
+        for (float[] segment : trailSegments)
+        {
+            // Apply camera offset to coordinates
+            float startX = segment[0] - cameraX + (gameAreaWidth / 2f);
+            float startY = segment[1] - cameraY + (gameAreaHeight / 2f);
+            float endX = segment[2] - cameraX + (gameAreaWidth / 2f);
+            float endY = segment[3] - cameraY + (gameAreaHeight / 2f);
+            float type = segment[4];
+
+            if (type == TRAIL_TYPE_TUNNELLER)
+            {
+                trailPaint.setColor(tunnellerNodeColor.getColor());
+            }
+            else
+            {
+                trailPaint.setColor(playerColor.getColor());
+            }
+            // Only draw if visible
+            if (Math.max(startY, endY) > -100 && Math.min(startY, endY) < gameAreaHeight + 100)
+            {
+                canvas.drawLine(startX, startY, endX, endY, trailPaint);
+            }
+        }
+
         float playerScreenX = playerX - cameraX + (gameAreaWidth / 2f);
         float playerScreenY = playerY - cameraY + (gameAreaHeight / 2f);
         canvas.drawCircle(playerScreenX, playerScreenY, nodeSize, playerColor);
@@ -210,7 +257,19 @@ public class GameLogic extends View
                 if (nodeScreenY > -100 && nodeScreenY < gameAreaHeight + 100)
                 {
                     // Choose node colour
-                    Paint color = node.isAheadOfPlayer() ? nodeColor : oldNodeColor;
+                    Paint color;
+                    if (!node.isAheadOfPlayer())
+                    {
+                        color = oldNodeColor;
+                    }
+                    else if (node.powerUpType == POWERUP_TUNNELLER)
+                    {
+                        color = tunnellerNodeColor;
+                    }
+                    else
+                    {
+                        color = nodeColor;
+                    }
                     canvas.drawCircle(nodeScreenX, nodeScreenY, nodeSize, color);
                 }
             }
@@ -224,6 +283,29 @@ public class GameLogic extends View
     // Handle all game logic updates
     private void updateGameLogic()
     {
+        if (activePowerUpType != POWERUP_NONE)
+        {
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime > powerUpEndTime)
+            {
+                activePowerUpType = POWERUP_NONE;
+            }
+            else
+            {
+                switch (activePowerUpType)
+                {
+                    case POWERUP_TUNNELLER:
+                        // Hop every 150ms
+                        if (currentTime - powerUpActionTimer > 150)
+                        {
+                            hopToNearestNode();
+                            powerUpActionTimer = currentTime;
+                        }
+                        break;
+                }
+            }
+        }
         // Check if player moved far enough to need more nodes
         float distancePlayerMoved = lastNodeSpawnY - playerY;
 
@@ -270,7 +352,14 @@ public class GameLogic extends View
 
             for (float nodeX : chosenPositions)
             {
-                nodes.add(new Node(nodeX, y));
+                Node newNode = new Node(nodeX, y);
+
+                // 10% chance to be a power-up
+                if (random.nextInt(10) == 0)
+                {
+                    newNode.powerUpType = POWERUP_TUNNELLER;
+                }
+                nodes.add(newNode);
             }
         }
     }
@@ -285,6 +374,16 @@ public class GameLogic extends View
             if (node.y > playerY + (gameAreaHeight * 2))
             {
                 nodes.remove(i);
+            }
+        }
+        for (int i = trailSegments.size() - 1; i >= 0; i--)
+        {//If both ends are far below the player, remove it
+            float y1 = trailSegments.get(i)[1];
+            float y2 = trailSegments.get(i)[3];
+
+            if (y1 > playerY + (gameAreaHeight * 2) && y2 > playerY + (gameAreaHeight * 2))
+            {
+                trailSegments.remove(i);
             }
         }
     }
@@ -302,10 +401,21 @@ public class GameLogic extends View
             {
                 if (node.active && node.wasClicked(touchX, touchY))
                 {
+                    float oldX = playerX;
+                    float oldY = playerY;
+
                     // Move player to clicked node
                     playerX = node.x;
                     playerY = node.y;
                     node.active = false;
+
+                    //Create trail
+                    addTrail(oldX, oldY, playerX, playerY, TRAIL_TYPE_NORMAL);
+
+                    if (node.powerUpType == POWERUP_TUNNELLER)
+                    {
+                        activatePowerUp(POWERUP_TUNNELLER, TUNNELLER_DURATION);
+                    }
 
                     return true;
                 }
@@ -313,8 +423,52 @@ public class GameLogic extends View
         }
         return true;
     }
+    private void activatePowerUp(int type, long duration)
+    {
+        activePowerUpType = type;
+        powerUpEndTime = System.currentTimeMillis() + duration;
+    }
     public int getScore()
     {
         return score;
+    }
+    private void hopToNearestNode()
+    {
+        Node bestNode = null;
+        float minDistance = Float.MAX_VALUE;
+
+        for (Node node : nodes)
+        {
+            if (node.active && node.y < playerY)
+            {
+                float deltaX = node.x - playerX;
+                float deltaY = node.y - playerY;
+                float dist = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                if (dist < minDistance)
+                {
+                    minDistance = dist;
+                    bestNode = node;
+                }
+            }
+        }
+        // Perform the hop if a node was found
+        if (bestNode != null)
+        {
+            addTrail(playerX, playerY, bestNode.x, bestNode.y, activePowerUpType);
+
+            playerX = bestNode.x;
+            playerY = bestNode.y;
+            bestNode.active = false;
+
+        }
+        else {
+            activePowerUpType = POWERUP_NONE;
+        }
+    }
+    private void addTrail(float startX, float startY, float endX, float endY, float type)
+    {
+        trailSegments.add(new float[]{startX, startY, endX, startY, type});
+        trailSegments.add(new float[]{endX, startY, endX, endY, type});
     }
 }
