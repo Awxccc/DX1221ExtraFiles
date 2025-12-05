@@ -45,7 +45,7 @@
         android:textSize="32sp"
         android:textStyle="bold"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/instruction_text"
+
         app:layout_constraintLeft_toLeftOf="@+id/bottom_bar_image"
         app:layout_constraintRight_toRightOf="@+id/bottom_bar_image"
         app:layout_constraintTop_toTopOf="@+id/bottom_bar_image"
@@ -53,20 +53,87 @@
         android:layout_marginBottom="8dp" />
 
     <!-- Instruction text -->
+    <RelativeLayout
+        android:id="@+id/instructions_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="visible"
+        android:elevation="100dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/gameover_input_style"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HOW TO PLAY"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_centerInParent="true" />
+
+                <Button
+                    android:id="@+id/close_instructions_btn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:text="X"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Tap nodes to move forward.\n\n2. Avoid the red enemies chasing you.\n\n3. Reach 2500 Distance to win!"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:lineSpacingExtra="6dp"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
     <TextView
-        android:id="@+id/instruction_text"
+        android:id="@+id/milestone_alert_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tap the nodes to travel through the network!"
+        android:text="2250m Left!"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="@+id/bottom_bar_image"
-        app:layout_constraintLeft_toLeftOf="@+id/bottom_bar_image"
-        app:layout_constraintRight_toRightOf="@+id/bottom_bar_image"
-        app:layout_constraintTop_toTopOf="@+id/bottom_bar_image"
-        app:layout_constraintVertical_bias="0.95"
-        android:layout_marginBottom="8dp" />
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/gameover_input_style"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/score_text"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="10dp" />
 
     <!-- Quit button -->
     <Button

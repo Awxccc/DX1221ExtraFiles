@@ -20,6 +20,7 @@ public class GameLogic extends View
     private boolean gameOver = false;
     private Random random = new Random();
     private BackgroundEntity background;
+    private int lastMilestone = 0;
 
     // Node Spawning Variables
     private float nodeSize = 60f, lastNodeSpawnY = 0;
@@ -33,6 +34,7 @@ public class GameLogic extends View
     private static final int POWERUP_RANGE_ENHANCER = 2;
     private static final int POWERUP_CONNECTION_STABILIZER = 3;
     private static final int POWERUP_HIJACKED = 4;
+    private static final int POWERUP_SIGNAL_BYPASS = 5;
 
     // Power-Ups Timers
     private boolean isTunnellerActive = false;
@@ -44,6 +46,9 @@ public class GameLogic extends View
     private boolean isConnectionStabilizerActive = false;
     private long connectionStabilizerEndTime = 0;
     private final long CONNECTION_STABILIZER_DURATION = 5000;
+    private boolean isSignalBypassActive = false;
+    private long signalBypassEndTime = 0;
+    private final long SIGNAL_BYPASS_DURATION = 5000;
 
     // Trail Variables
     private ArrayList<float[]> trailSegments = new ArrayList<>();
@@ -68,6 +73,7 @@ public class GameLogic extends View
     private Paint hijackedNodeColour;
     private Paint trailPaint;
     private Paint clickRangePaint;
+    private Paint signalBypassNodeColour;
 
     private class Node
     {
@@ -94,7 +100,12 @@ public class GameLogic extends View
                 return false;
 
             if (powerUpType == POWERUP_HIJACKED) // Hijacked nodes cannot be clicked at all
-                return false;
+            {
+                if (!isSignalBypassActive)
+                {
+                    return false;
+                }
+            }
 
             float screenX = x - cameraX + (gameAreaWidth / 2f);
             float screenY = y - cameraY + (gameAreaHeight / 2f);
@@ -154,6 +165,11 @@ public class GameLogic extends View
         connectionStabilizerNodeColour = new Paint();
         connectionStabilizerNodeColour.setColor(0xFFFF8000);
         connectionStabilizerNodeColour.setAntiAlias(true);
+
+        // Signal bypass power-up colour
+        signalBypassNodeColour = new Paint();
+        signalBypassNodeColour.setColor(0xFFFFFF00);
+        signalBypassNodeColour.setAntiAlias(true);
 
         // Hijacked node colour
         hijackedNodeColour = new Paint();
@@ -229,6 +245,11 @@ public class GameLogic extends View
                         gameStarted = true;
                         isShrinking = true;
                         lastShrinkTime = System.currentTimeMillis();
+                    }
+
+                    if (node.powerUpType == POWERUP_HIJACKED && isSignalBypassActive)
+                    {
+                        isSignalBypassActive = false;
                     }
 
                     float oldX = playerX;
@@ -330,8 +351,8 @@ public class GameLogic extends View
             // If not hijacked, check for power-up at 2% spawn rate, at a 33%/33%/33% split
             if (random.nextInt(50) == 0)
             {
-                int powerUpType = random.nextInt(3) + 1;
-                newNode.powerUpType = powerUpType;
+                int[] types = {POWERUP_TUNNELLER, POWERUP_RANGE_ENHANCER, POWERUP_CONNECTION_STABILIZER, POWERUP_SIGNAL_BYPASS};
+                newNode.powerUpType = types[random.nextInt(types.length)];
             }
 
             nodes.add(newNode);
@@ -412,11 +433,24 @@ public class GameLogic extends View
                 rangeEnhancerPausedTime = currentTime;
             }
         }
+        else if (powerUpType == POWERUP_SIGNAL_BYPASS)
+        {
+            isSignalBypassActive = true;
+            signalBypassEndTime = currentTime + SIGNAL_BYPASS_DURATION;
+        }
     }
 
     private void updatePowerUps()
     {
         long currentTime = System.currentTimeMillis();
+
+        if (isSignalBypassActive)
+        {
+            if (currentTime > signalBypassEndTime)
+            {
+                isSignalBypassActive = false;
+            }
+        }
 
         if (isConnectionStabilizerActive)
         {
@@ -706,6 +740,10 @@ public class GameLogic extends View
         {
             return connectionStabilizerNodeColour; // Orange
         }
+        else if (node.powerUpType == POWERUP_SIGNAL_BYPASS)
+        {
+            return signalBypassNodeColour; // Yellow
+        }
         else if (node.powerUpType == POWERUP_HIJACKED)
         {
             return hijackedNodeColour; // Red
@@ -744,6 +782,18 @@ public class GameLogic extends View
 
         // Update score and clean up old nodes
         score = (int) Math.abs(playerY / 100);
+
+        if (score >= lastMilestone + 250)
+        {
+            lastMilestone = (score / 250) * 250;
+
+            int metersLeft = WIN_SCORE - lastMilestone;
+            if (metersLeft > 0)
+            {
+                triggerMilestoneAlert(metersLeft);
+            }
+        }
+
         removeOldNodes();
     }
 
@@ -822,5 +872,12 @@ public class GameLogic extends View
     {
         // Show range when game started (except during tunneller)
         return gameStarted && !isTunnellerActive;
+    }
+    private void triggerMilestoneAlert(int metersLeft)
+    {
+        if (getContext() instanceof GameScene)
+        {
+            ((GameScene) getContext()).onMilestoneReached(metersLeft);
+        }
     }
 }

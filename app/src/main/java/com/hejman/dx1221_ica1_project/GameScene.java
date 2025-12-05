@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 public class GameScene extends Activity
 {
@@ -24,6 +25,22 @@ public class GameScene extends Activity
     private EditText nameInput;
     private Button submitButton;
     private boolean isUpdatingScore = false;
+    private View instructionsOverlay;
+    private Button closeInstructionsBtn;
+
+    private TextView milestoneAlertText;
+    private Handler alertHandler = new Handler();
+    private Runnable hideAlertRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            if (milestoneAlertText != null)
+            {
+                milestoneAlertText.setVisibility(View.GONE);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,7 +50,18 @@ public class GameScene extends Activity
         gameLogic = findViewById(R.id.game_logic);
         scoreText = findViewById(R.id.score_text);
         Button quitButton = findViewById(R.id.quit_button);
+        instructionsOverlay = findViewById(R.id.instructions_overlay);
+        closeInstructionsBtn = findViewById(R.id.close_instructions_btn);
+        milestoneAlertText = findViewById(R.id.milestone_alert_text);
 
+        closeInstructionsBtn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                instructionsOverlay.setVisibility(View.GONE);
+            }
+        });
         // Quit Button
         quitButton.setOnClickListener(new View.OnClickListener()
         {
@@ -227,6 +255,24 @@ public class GameScene extends Activity
 
         // Show the game over screen
         gameOverScreen.setVisibility(View.VISIBLE);
+    }
+    public void onMilestoneReached(int metersLeft)
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (milestoneAlertText != null) {
+                    milestoneAlertText.setText(metersLeft + " meters left!");
+                    milestoneAlertText.setVisibility(View.VISIBLE);
+
+                    // Reset timer and hide after 2 seconds
+                    alertHandler.removeCallbacks(hideAlertRunnable);
+                    alertHandler.postDelayed(hideAlertRunnable, 2000);
+                }
+            }
+        });
     }
 
     @Override
