@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 
 public class GameScene extends Activity
 {
@@ -26,6 +29,14 @@ public class GameScene extends Activity
     private boolean isUpdatingScore = false;
     private View instructionsOverlay;
     private Button closeInstructionsBtn;
+
+    //Audio
+    private MediaPlayer bgmPlayer;
+    private SoundPool soundPool;
+    private int playerLostId;
+    private int playerWonId;
+    private int buttonClickId;
+    private SettingsManager settingsManager;
 
     private TextView milestoneAlertText;
     private final Handler alertHandler = new Handler();
@@ -46,18 +57,20 @@ public class GameScene extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gamescene);
+        settingsManager = new SettingsManager(this);
         gameLogic = findViewById(R.id.game_logic);
         scoreText = findViewById(R.id.score_text);
         Button quitButton = findViewById(R.id.quit_button);
         instructionsOverlay = findViewById(R.id.instructions_overlay);
         closeInstructionsBtn = findViewById(R.id.close_instructions_btn);
         milestoneAlertText = findViewById(R.id.milestone_alert_text);
-
+        initAudio();
         closeInstructionsBtn.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
+                playSound(buttonClickId);
                 instructionsOverlay.setVisibility(View.GONE);
             }
         });
@@ -66,12 +79,15 @@ public class GameScene extends Activity
         {
             public void onClick(View v)
             {
+                playSound(buttonClickId);
                 finish();
             }
         });
 
         createGameOverScreen();
         startScoreUpdates();
+
+
     }
 
     private void createGameOverScreen()
@@ -199,6 +215,8 @@ public class GameScene extends Activity
     // Show the win screen with final score
     private void showGameWin(int finalScore)
     {
+        stopBGM();
+        playSound(playerWonId);
         gameOverTitle.setText("YOU WIN!");
         gameOverTitle.setTextColor(0xFF00FF00);
         gameOverScoreText.setText("You have travelled " + finalScore + " meters");
@@ -207,6 +225,7 @@ public class GameScene extends Activity
             @Override
             public void onClick(View v)
             {
+                playSound(buttonClickId);
                 String playerName = nameInput.getText().toString().trim();
                 if (playerName.isEmpty())
                 {
@@ -229,6 +248,8 @@ public class GameScene extends Activity
     // Show the game over screen with final score
     private void showGameOver(int finalScore)
     {
+        stopBGM();
+        playSound(playerLostId);
         gameOverTitle.setText("GAME OVER");
         gameOverTitle.setTextColor(0xFFFFFFFF);
         gameOverScoreText.setText("You have travelled " + finalScore + " meters");
@@ -237,6 +258,7 @@ public class GameScene extends Activity
             @Override
             public void onClick(View v)
             {
+                playSound(buttonClickId);
                 String playerName = nameInput.getText().toString().trim();
                 if (playerName.isEmpty())
                 {
@@ -273,25 +295,81 @@ public class GameScene extends Activity
             }
         });
     }
-
-    @Override
-    protected void onDestroy()
+    private void initAudio()
     {
-        super.onDestroy();
-        stopScoreUpdates(); // Stop score updates when activity closes
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(2)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        playerLostId = soundPool.load(this, R.raw.player_lost, 1);
+        playerWonId = soundPool.load(this, R.raw.player_won, 1);
+        buttonClickId = soundPool.load(this, R.raw.button_click, 1);
+
+        bgmPlayer = MediaPlayer.create(this, R.raw.gamescene_bgm);
+        if (bgmPlayer != null)
+        {
+            bgmPlayer.setLooping(true);
+            float volume = settingsManager.getMusicVolume() / 100f;
+            bgmPlayer.setVolume(volume, volume);
+        }
+    }
+    private void stopBGM()
+    {
+        if (bgmPlayer != null && bgmPlayer.isPlaying())
+        {
+            bgmPlayer.stop();
+        }
     }
 
-    @Override
-    protected void onPause()
+    private void playSound(int soundId)
     {
-        super.onPause();
-        stopScoreUpdates(); // Stop score updates when activity pauses
+        float volume = settingsManager.getSFXVolume() / 100f;
+        if (soundPool != null)
+        {
+            soundPool.play(soundId, volume, volume, 1, 0, 1f);
+        }
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
-        startScoreUpdates(); // Resume score updates when activity resumes
+        if (bgmPlayer != null && !bgmPlayer.isPlaying())
+        {
+            bgmPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if (bgmPlayer != null && bgmPlayer.isPlaying())
+        {
+            bgmPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        stopScoreUpdates();
+        if (bgmPlayer != null)
+        {
+            bgmPlayer.release();
+            bgmPlayer = null;
+        }
+        if (soundPool != null)
+        {
+            soundPool.release();
+            soundPool = null;
+        }
     }
 }

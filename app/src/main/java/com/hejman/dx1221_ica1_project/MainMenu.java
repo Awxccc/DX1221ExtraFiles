@@ -11,6 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.SeekBar;
 import java.util.ArrayList;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 
 public class MainMenu extends Activity
 {
@@ -23,6 +26,10 @@ public class MainMenu extends Activity
     private TextView noEntriesMessage;
     private LeaderboardManager leaderboardManager;
     private SettingsManager settingsManager;
+    //Audio
+    private MediaPlayer menuBgmPlayer;
+    private SoundPool soundPool;
+    private int buttonClickId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,11 +40,40 @@ public class MainMenu extends Activity
         // Setup leaderboard manager
         leaderboardManager = new LeaderboardManager(this);
         settingsManager = new SettingsManager(this);
+        setupAudio();
         setupContainers();
         setupButtons();
         updateLeaderboardDisplay();
     }
+    private void setupAudio()
+    {
+        // 1. Setup SoundPool for SFX
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
 
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        buttonClickId = soundPool.load(this, R.raw.button_click, 1);
+
+        // 2. Setup MediaPlayer for BGM
+        menuBgmPlayer = MediaPlayer.create(this, R.raw.mainmenu_bgm);
+        if (menuBgmPlayer != null)
+        {
+            menuBgmPlayer.setLooping(true);
+        }
+    }
+    private void playClickSound()
+    {
+        float volume = settingsManager.getSFXVolume() / 100f;
+        if (soundPool != null) {
+            soundPool.play(buttonClickId, volume, volume, 1, 0, 1f);
+        }
+    }
     // Setup all buttons and their click actions
     private void setupButtons()
     {
@@ -54,35 +90,58 @@ public class MainMenu extends Activity
 
         // Play game button
         playButton.setOnClickListener(v -> {
+            playClickSound();
             Intent intent = new Intent(MainMenu.this, GameScene.class);
             startActivity(intent);
         });
 
         // Highscore button
-        highscoreButton.setOnClickListener(v -> showHighscore());
+        highscoreButton.setOnClickListener(v -> {
+            playClickSound();
+            showHighscore();
+        });
 
         // Credits button
-        creditsButton.setOnClickListener(v -> showCredits());
+        creditsButton.setOnClickListener(v -> {
+            playClickSound();
+            showCredits();
+        });
 
         // Back button from credits
-        backButton.setOnClickListener(v -> showMainMenu());
+        backButton.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
+        });
 
         // Back button from highscore
-        backButtonHighscore.setOnClickListener(v -> showMainMenu());
+        backButtonHighscore.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
+        });
 
         // Reset leaderboard button
         resetLeaderboardButton.setOnClickListener(v -> {
+            playClickSound();
             leaderboardManager.clearScores();
             updateLeaderboardDisplay();
         });
 
         // Quit button
-        quitButton.setOnClickListener(v -> finish());
+        quitButton.setOnClickListener(v -> {
+            playClickSound();
+            finish();
+        });
 
         // Settings button
-        settingsButton.setOnClickListener(v -> showSettings());
+        settingsButton.setOnClickListener(v -> {
+            playClickSound();
+            showSettings();
+        });
 
-        backButtonSettings.setOnClickListener(v -> showMainMenu());
+        backButtonSettings.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
+        });
 
         setupSliders();
 
@@ -208,5 +267,45 @@ public class MainMenu extends Activity
         SeekBar sfxSlider = findViewById(R.id.sfx_slider);
 
         settingsManager.bindSliders(musicSlider, sfxSlider);
+    }
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        // Start BGM
+        if (menuBgmPlayer != null && !menuBgmPlayer.isPlaying())
+        {
+            float volume = settingsManager.getMusicVolume() / 100f;
+            menuBgmPlayer.setVolume(volume, volume);
+            menuBgmPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        // Pause BGM
+        if (menuBgmPlayer != null && menuBgmPlayer.isPlaying())
+        {
+            menuBgmPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        // Clean up audio
+        if (menuBgmPlayer != null)
+        {
+            menuBgmPlayer.release();
+            menuBgmPlayer = null;
+        }
+        if (soundPool != null)
+        {
+            soundPool.release();
+            soundPool = null;
+        }
     }
 }

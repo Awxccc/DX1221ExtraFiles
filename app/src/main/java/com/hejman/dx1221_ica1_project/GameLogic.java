@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Random;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 
 public class GameLogic extends View
 {
@@ -97,6 +99,11 @@ public class GameLogic extends View
     private Paint playerColour, nodeColour, oldNodeColour, tunnellerNodeColour, rangeEnhancerNodeColour;
     private Paint connectionStabilizerNodeColour, hijackedNodeColour, trailPaint, clickRangePaint;
     private Paint signalBypassNodeColour, deathPaint;
+
+    //Audio
+    private SoundPool soundPool;
+    private int nodeMoveId, gameStartId, powerupCollectedId;
+    private float sfxVolume = 1.0f;
 
     private class Node
     {
@@ -214,6 +221,11 @@ public class GameLogic extends View
                         gameStarted = true;
                         isShrinking = true;
                         lastShrinkTime = System.currentTimeMillis();
+                        playSound(gameStartId);
+                    }
+                    else
+                    {
+                        playSound(nodeMoveId);
                     }
 
                     if (node.powerUpType == POWERUP_HIJACKED && isSignalBypassActive)
@@ -298,6 +310,7 @@ public class GameLogic extends View
     {
         super(context, attrs);
         setupColours();
+        setupAudio(context);
     }
 
     private void updateGameLogic()
@@ -511,6 +524,10 @@ public class GameLogic extends View
 
     private void activatePowerUp(int powerUpType)
     {
+        if (powerUpType != POWERUP_NONE && powerUpType != POWERUP_HIJACKED)
+        {
+            playSound(powerupCollectedId);
+        }
         long currentTime = System.currentTimeMillis();
 
         if (powerUpType == POWERUP_TUNNELLER)
@@ -1088,5 +1105,32 @@ public class GameLogic extends View
     {
         // Show range when game started (except during tunneller)
         return gameStarted && !isTunnellerActive;
+    }
+    private void setupAudio(Context context)
+    {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build();
+
+        // Load the sounds
+        nodeMoveId = soundPool.load(context, R.raw.node_move, 1);
+        gameStartId = soundPool.load(context, R.raw.game_start, 1);
+        powerupCollectedId = soundPool.load(context, R.raw.powerup_collected, 1);
+
+        // Get volume settings
+        SettingsManager settingsManager = new SettingsManager(context);
+        sfxVolume = settingsManager.getSFXVolume() / 100f;
+    }
+    private void playSound(int soundId)
+    {
+        if (soundPool != null) {
+            soundPool.play(soundId, sfxVolume, sfxVolume, 1, 0, 1f);
+        }
     }
 }
