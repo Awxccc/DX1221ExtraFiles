@@ -1,5 +1,6 @@
 package com.hejman.dx1221_ica1_project;
 
+import androidx.annotation.NonNull;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,9 +13,9 @@ import java.util.Random;
 public class MainMenu_Particle extends View
 {
     // Variables
-    private ArrayList<Particle> particles;
-    private Paint paint;
-    private Random random;
+    private final ArrayList<Particle> particles;
+    private final Paint paint;
+    private final Random random;
     private int screenWidth, screenHeight;
 
     public MainMenu_Particle(Context context, AttributeSet attrs)
@@ -52,7 +53,7 @@ public class MainMenu_Particle extends View
     }
 
     @Override
-    protected void onDraw(Canvas canvas)
+    protected void onDraw(@NonNull Canvas canvas)
     {
         super.onDraw(canvas);
 
@@ -74,7 +75,7 @@ public class MainMenu_Particle extends View
         invalidate(); // Redraw that shit
     }
 
-    private class Particle
+    private static class Particle
     {
         // Particle Variables
         float x, y, speed;

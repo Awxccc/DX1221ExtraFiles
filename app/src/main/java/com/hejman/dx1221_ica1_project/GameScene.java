@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.RelativeLayout;
 
 public class GameScene extends Activity
 {
@@ -29,8 +28,8 @@ public class GameScene extends Activity
     private Button closeInstructionsBtn;
 
     private TextView milestoneAlertText;
-    private Handler alertHandler = new Handler();
-    private Runnable hideAlertRunnable = new Runnable()
+    private final Handler alertHandler = new Handler();
+    private final Runnable hideAlertRunnable = new Runnable()
     {
         @Override
         public void run()

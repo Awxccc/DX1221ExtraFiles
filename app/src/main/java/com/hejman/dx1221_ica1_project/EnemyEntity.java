@@ -1,21 +1,26 @@
 package com.hejman.dx1221_ica1_project;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 
 public class EnemyEntity
 {
     private float x, y;
     private boolean isOnScreen = false;
-    private Paint enemyPaint;
+    private final Paint enemyPaint;
+    private final Bitmap sprite;
 
-    public EnemyEntity(float spawnX, float spawnY)
+    public EnemyEntity(float spawnX, float spawnY, Bitmap sprite)
     {
         x = spawnX;
         y = spawnY;
+        this.sprite = sprite;
 
         enemyPaint = new Paint();
-        enemyPaint.setColor(0xFFFF0000);
+        enemyPaint.setColorFilter(new PorterDuffColorFilter(0xFFFF0000, PorterDuff.Mode.SRC_IN));
         enemyPaint.setAntiAlias(true);
     }
 
@@ -26,7 +31,7 @@ public class EnemyEntity
         float screenY = y - cameraY + (gameAreaHeight / 2f);
         isOnScreen = (screenY >= -100 && screenY <= gameAreaHeight + 100);
 
-        // If visible, Move toward player
+        // If visible, Move towards the player
         if (isOnScreen)
         {
             float deltaX = playerX - x;
@@ -49,14 +54,24 @@ public class EnemyEntity
 
         if (screenY > -100 && screenY < gameAreaHeight + 100)
         {
-            canvas.drawCircle(screenX, screenY, 40f, enemyPaint);
+            if (sprite != null)
+            {
+                float drawX = screenX - (sprite.getWidth() / 2f);
+                float drawY = screenY - (sprite.getHeight() / 2f);
+                canvas.drawBitmap(sprite, drawX, drawY, enemyPaint);
+            }
+            else
+            {
+                canvas.drawCircle(screenX, screenY, 40f, enemyPaint);
+            }
         }
     }
 
     // Check if the enemy collides with the player
-    public boolean checkCollision(float playerX, float playerY)
+    public boolean checkEnemyCollision(float playerX, float playerY)
     {
-        if (!isOnScreen) return false;
+        if (!isOnScreen)
+            return false;
 
         float deltaX = x - playerX;
         float deltaY = y - playerY;
@@ -65,8 +80,8 @@ public class EnemyEntity
         return distance <= 100f;
     }
 
-    // Check if the enemy should be deleted
-    public boolean shouldRemove(float playerY, int gameAreaHeight)
+    // Check if the enemy should be removed
+    public boolean shouldRemoveEnemy(float playerY, int gameAreaHeight)
     {
         return y > playerY + (gameAreaHeight * 2);
     }

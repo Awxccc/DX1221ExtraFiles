@@ -7,15 +7,13 @@ import android.graphics.Canvas;
 
 public class BackgroundEntity
 {
-    private Bitmap backgroundBitmap;
-    private Bitmap backgroundBitmap1;
-    private float screenWidth, screenHeight;
+    private final Bitmap backgroundBitmap;
+    private final Bitmap backgroundBitmap1;
+    private final float screenHeight;
     private float backgroundPosition;
-    private float scrollSpeed = 10f;
 
     public BackgroundEntity(Context context, int width, int height)
     {
-        this.screenWidth = width;
         this.screenHeight = height;
         int backgroundResId = R.drawable.my_game_bg;
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), backgroundResId);
@@ -24,10 +22,10 @@ public class BackgroundEntity
         backgroundBitmap1 = Bitmap.createScaledBitmap(bmp, width, height, true);
     }
 
-    public void update()
+    public void update(float scrollAmount)
     {
         // + make bg go down - go up
-        backgroundPosition = (backgroundPosition + scrollSpeed) % screenHeight;
+        backgroundPosition = (backgroundPosition + scrollAmount) % screenHeight;
     }
 
     public void draw(Canvas canvas)

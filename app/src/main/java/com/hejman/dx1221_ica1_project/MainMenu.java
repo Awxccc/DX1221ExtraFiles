@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.SeekBar;
 import java.util.ArrayList;
 
@@ -52,100 +51,42 @@ public class MainMenu extends Activity
         Button resetLeaderboardButton = findViewById(R.id.reset_leaderboard_button);
         ImageButton settingsButton = findViewById(R.id.settings_button);
         Button backButtonSettings = findViewById(R.id.back_button_settings);
+
         // Play game button
-        playButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                Intent intent = new Intent(MainMenu.this, GameScene.class);
-                startActivity(intent);
-            }
+        playButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainMenu.this, GameScene.class);
+            startActivity(intent);
         });
 
         // Highscore button
-        highscoreButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showHighscore();
-            }
-        });
+        highscoreButton.setOnClickListener(v -> showHighscore());
 
         // Credits button
-        creditsButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showCredits();
-            }
-        });
+        creditsButton.setOnClickListener(v -> showCredits());
 
         // Back button from credits
-        backButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showMainMenu();
-            }
-        });
+        backButton.setOnClickListener(v -> showMainMenu());
 
         // Back button from highscore
-        backButtonHighscore.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showMainMenu();
-            }
-        });
+        backButtonHighscore.setOnClickListener(v -> showMainMenu());
 
         // Reset leaderboard button
-        resetLeaderboardButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                leaderboardManager.clearScores();
-                updateLeaderboardDisplay();
-            }
+        resetLeaderboardButton.setOnClickListener(v -> {
+            leaderboardManager.clearScores();
+            updateLeaderboardDisplay();
         });
 
         // Quit button
-        quitButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                finish();
-            }
-        });
+        quitButton.setOnClickListener(v -> finish());
 
         // Settings button
-        settingsButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showSettings();
-            }
-        });
+        settingsButton.setOnClickListener(v -> showSettings());
 
-        backButtonSettings.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showMainMenu();
-            }
-        });
+        backButtonSettings.setOnClickListener(v -> showMainMenu());
 
         setupSliders();
-        ImageButton localSettingsBtn = findViewById(R.id.settings_button);
 
-        settingsManager.setSettingsButton(localSettingsBtn);
-
-        localSettingsBtn.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                showSettings();
-            }
-        });
+        settingsManager.setSettingsButton(settingsButton);
     }
 
     // Setting up all of the screen containers
@@ -261,12 +202,11 @@ public class MainMenu extends Activity
         LeaderboardManager manager = new LeaderboardManager(context);
         manager.addScore(playerName, score);
     }
-    private void setupSliders() {
-        // Find the views
+    private void setupSliders()
+    {
         SeekBar musicSlider = findViewById(R.id.music_slider);
         SeekBar sfxSlider = findViewById(R.id.sfx_slider);
 
-        // Let the manager handle the rest!
         settingsManager.bindSliders(musicSlider, sfxSlider);
     }
 }

@@ -6,15 +6,17 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:fitsSystemWindows="true">
-    
+
     <ImageView
         android:id="@+id/splash_logo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginBottom="30dp"
-        android:src="@mipmap/ic_launcher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0dp"
+        android:src="@drawable/splashscreen"
+        android:scaleType="centerCrop"
         android:contentDescription="Game Logo"
-        app:layout_constraintBottom_toTopOf="@+id/splash_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
@@ -27,6 +29,7 @@
         android:textColor="#FFFFFF"
         android:textStyle="bold"
         android:textAlignment="center"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -41,6 +44,7 @@
         android:textSize="24sp"
         android:textColor="#FFFFFF"
         android:textAlignment="center"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/splash_title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

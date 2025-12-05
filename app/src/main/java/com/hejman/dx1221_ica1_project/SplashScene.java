@@ -27,15 +27,10 @@ public class SplashScene extends AppCompatActivity
         });
 
         // Auto transition to the main menu after 3 seconds
-        new Handler().postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Intent intent = new Intent(SplashScene.this, MainMenu.class);
-                startActivity(intent);
-                finish();
-            }
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(SplashScene.this, MainMenu.class);
+            startActivity(intent);
+            finish();
         }, SPLASH_DURATION);
     }
 }

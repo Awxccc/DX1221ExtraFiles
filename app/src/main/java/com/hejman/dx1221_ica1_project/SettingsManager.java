@@ -11,22 +11,24 @@ public class SettingsManager
     private static final String KEY_MUSIC = "music_vol";
     private static final String KEY_SFX = "sfx_vol";
     private ImageButton settingsButton;
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public SettingsManager(Context context)
     {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    //    Set up sliders from Mainmenu class
+    // Set up sliders from the main menu class
     public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider)
     {
         musicSlider.setProgress(getMusicVolume());
         sfxSlider.setProgress(getSFXVolume());
 
-        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
                 saveMusicVolume(progress);
             }
 
@@ -34,25 +36,17 @@ public class SettingsManager
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        sfxSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sfxSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
                 saveSFXVolume(progress);
             }
 
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-    }
-
-    public int getMusicVolume()
-    {
-        return prefs.getInt(KEY_MUSIC, 100);
-    }
-
-    public int getSFXVolume()
-    {
-        return prefs.getInt(KEY_SFX, 100);
     }
 
     private void saveMusicVolume(int volume)
@@ -75,12 +69,25 @@ public class SettingsManager
 
     public void setButtonVisibility(boolean isVisible)
     {
-        if (settingsButton != null) {
-            if (isVisible) {
+        if (settingsButton != null)
+        {
+            if (isVisible)
+            {
                 settingsButton.setVisibility(View.VISIBLE);
-            } else {
+            } else
+            {
                 settingsButton.setVisibility(View.GONE);
             }
         }
+    }
+
+    public int getMusicVolume()
+    {
+        return prefs.getInt(KEY_MUSIC, 100);
+    }
+
+    public int getSFXVolume()
+    {
+        return prefs.getInt(KEY_SFX, 100);
     }
 }

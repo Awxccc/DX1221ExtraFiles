@@ -7,12 +7,10 @@ import java.util.ArrayList;
 public class LeaderboardManager
 {
     // Variables
-    private Context context;
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public LeaderboardManager(Context context)
     {
-        this.context = context;
         this.prefs = context.getSharedPreferences("LeaderboardPrefs", Context.MODE_PRIVATE);
     }
 
@@ -53,9 +51,8 @@ public class LeaderboardManager
             String[] entries = scoresString.split(";");
 
             // Then we loop through each entry
-            for (int i = 0; i < entries.length; i++)
+            for (String entry : entries)
             {
-                String entry = entries[i];
                 String[] parts = entry.split(",");
 
                 if (parts.length == 2)
@@ -91,23 +88,23 @@ public class LeaderboardManager
     // Save the scores
     private void saveScores(ArrayList<ScoreEntry> scores)
     {
-        String scoresString = "";
+        StringBuilder scoresString = new StringBuilder();
 
         // Convert scores to text format first just in case
         for (int i = 0; i < scores.size(); i++)
         {
             ScoreEntry entry = scores.get(i);
-            scoresString = scoresString + entry.name + "," + entry.score;
+            scoresString.append(entry.name).append(",").append(entry.score);
 
             if (i < scores.size() - 1)
             {
-                scoresString = scoresString + ";";
+                scoresString.append(";");
             }
         }
 
         // Here we actually save the score lolol
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("scores", scoresString);
+        editor.putString("scores", scoresString.toString());
         editor.apply();
     }
 
