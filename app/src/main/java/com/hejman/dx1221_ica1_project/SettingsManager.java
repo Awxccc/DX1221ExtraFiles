@@ -13,23 +13,28 @@ public class SettingsManager
     private ImageButton settingsButton;
     private final SharedPreferences prefs;
 
+    public interface OnVolumeChangedListener {
+        void onVolumeChanged(int volume);
+    }
     public SettingsManager(Context context)
     {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
     // Set up sliders from the main menu class
-    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider)
+    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider, OnVolumeChangedListener musicListener)
     {
         musicSlider.setProgress(getMusicVolume());
         sfxSlider.setProgress(getSFXVolume());
 
-        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
+        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 saveMusicVolume(progress);
+                // Now musicListener is recognized and can be called
+                if (fromUser && musicListener != null) {
+                    musicListener.onVolumeChanged(progress);
+                }
             }
 
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}

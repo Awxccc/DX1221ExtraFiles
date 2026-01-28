@@ -340,9 +340,15 @@ public class GameScene extends Activity
     protected void onResume()
     {
         super.onResume();
-        if (bgmPlayer != null && !bgmPlayer.isPlaying())
+        if (bgmPlayer != null)
         {
-            bgmPlayer.start();
+            float volume = settingsManager.getMusicVolume() / 100f;
+            bgmPlayer.setVolume(volume, volume);
+
+            if (!bgmPlayer.isPlaying())
+            {
+                bgmPlayer.start();
+            }
         }
     }
 

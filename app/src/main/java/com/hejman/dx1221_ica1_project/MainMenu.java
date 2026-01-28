@@ -266,7 +266,12 @@ public class MainMenu extends Activity
         SeekBar musicSlider = findViewById(R.id.music_slider);
         SeekBar sfxSlider = findViewById(R.id.sfx_slider);
 
-        settingsManager.bindSliders(musicSlider, sfxSlider);
+        settingsManager.bindSliders(musicSlider, sfxSlider, progress -> {
+            if (menuBgmPlayer != null) {
+                float volume = progress / 100f;
+                menuBgmPlayer.setVolume(volume, volume);
+            }
+        });
     }
     @Override
     protected void onResume()
