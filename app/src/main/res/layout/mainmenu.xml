@@ -29,6 +29,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Shop button -->
+    <ImageButton
+        android:id="@+id/shop_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="20dp"
+        android:src="@drawable/ui_shopicon"
+        android:background="@drawable/settings_button_style"
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Main Menu Screen -->
     <LinearLayout
         android:id="@+id/main_menu_container"
@@ -400,6 +413,74 @@
             android:textSize="18sp"
             android:textColor="#FFFFFF"
             android:background="@drawable/button_style" />
+
+    </LinearLayout>
+
+    <!--    Shop Screen-->
+    <LinearLayout
+        android:id="@+id/shop_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="30dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POWER-UP SHOP"
+            android:textColor="#FFFFFF"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:id="@+id/shop_currency_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Coins: 0"
+            android:textColor="#FFD700"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/shop_entries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <Button
+                android:id="@+id/back_button_shop"
+                android:layout_width="200dp"
+                android:layout_height="60dp"
+                android:background="@drawable/button_style"
+                android:text="BACK"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:layout_gravity="center"/>
+
+            <Button
+                android:id="@+id/reset_shop_button"
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:background="@drawable/gameover_button_style"
+                android:text="RESET"
+                android:textColor="#FF4444"
+                android:textSize="14sp"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
 
     </LinearLayout>
 

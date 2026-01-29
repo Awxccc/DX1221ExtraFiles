@@ -37,7 +37,7 @@ public class GameScene extends Activity
     private int playerWonId;
     private int buttonClickId;
     private SettingsManager settingsManager;
-
+    private ShopManager shopManager;
     private TextView milestoneAlertText;
     private final Handler alertHandler = new Handler();
     private final Runnable hideAlertRunnable = new Runnable()
@@ -58,6 +58,7 @@ public class GameScene extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gamescene);
         settingsManager = new SettingsManager(this);
+        shopManager = new ShopManager(this);
         gameLogic = findViewById(R.id.game_logic);
         scoreText = findViewById(R.id.score_text);
         Button quitButton = findViewById(R.id.quit_button);
@@ -217,9 +218,13 @@ public class GameScene extends Activity
     {
         stopBGM();
         playSound(playerWonId);
+
+        int coinsEarned = finalScore / 10;
+        shopManager.addCurrency(coinsEarned);
+
         gameOverTitle.setText("YOU WIN!");
         gameOverTitle.setTextColor(0xFF00FF00);
-        gameOverScoreText.setText("You have travelled " + finalScore + " meters");
+        gameOverScoreText.setText("Distance: " + finalScore + "m\nCoins Earned: " + coinsEarned);
         submitButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -250,9 +255,12 @@ public class GameScene extends Activity
     {
         stopBGM();
         playSound(playerLostId);
+        int coinsEarned = finalScore / 10;
+        shopManager.addCurrency(coinsEarned);
+
         gameOverTitle.setText("GAME OVER");
         gameOverTitle.setTextColor(0xFFFFFFFF);
-        gameOverScoreText.setText("You have travelled " + finalScore + " meters");
+        gameOverScoreText.setText("Distance: " + finalScore + "m\nCoins Earned: " + coinsEarned);
         submitButton.setOnClickListener(new View.OnClickListener()
         {
             @Override

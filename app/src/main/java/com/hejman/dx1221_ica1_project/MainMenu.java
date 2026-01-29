@@ -22,20 +22,31 @@ public class MainMenu extends Activity
     private LinearLayout creditsContainer;
     private LinearLayout highscoreContainer;
     private LinearLayout settingsContainer;
+    private LinearLayout shopContainer;
     private LinearLayout leaderboardEntries;
+
     private TextView noEntriesMessage;
     private LeaderboardManager leaderboardManager;
     private SettingsManager settingsManager;
+
+    //Shop
+    private ShopManager shopManager;
+    private LinearLayout shopEntries;
+    private TextView shopCurrencyText;
+    private ImageButton shopButton;
     //Audio
     private MediaPlayer menuBgmPlayer;
     private SoundPool soundPool;
     private int buttonClickId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mainmenu);
+
+        shopManager = new ShopManager(this);
 
         // Setup leaderboard manager
         leaderboardManager = new LeaderboardManager(this);
@@ -87,6 +98,27 @@ public class MainMenu extends Activity
         Button resetLeaderboardButton = findViewById(R.id.reset_leaderboard_button);
         ImageButton settingsButton = findViewById(R.id.settings_button);
         Button backButtonSettings = findViewById(R.id.back_button_settings);
+        //Shop
+        shopButton = findViewById(R.id.shop_button);
+        Button backButtonShop = findViewById(R.id.back_button_shop);
+        Button resetShopButton = findViewById(R.id.reset_shop_button);
+
+        //Shop buttons
+        shopButton.setOnClickListener(v -> {
+            playClickSound();
+            showShop();
+        });
+
+        backButtonShop.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
+        });
+
+        resetShopButton.setOnClickListener(v -> {
+            playClickSound();
+            shopManager.resetAllShopProgress();
+            updateShopDisplay();
+        });
 
         // Play game button
         playButton.setOnClickListener(v -> {
@@ -157,12 +189,18 @@ public class MainMenu extends Activity
         leaderboardEntries = findViewById(R.id.leaderboard_entries);
         settingsContainer = findViewById(R.id.settings_container);
         noEntriesMessage = findViewById(R.id.no_entries_message);
+
+        //Shop
+        shopContainer = findViewById(R.id.shop_container);
+        shopEntries = findViewById(R.id.shop_entries);
+        shopCurrencyText = findViewById(R.id.shop_currency_text);
     }
 
     private void showCredits()
     {
         hideAllScreens();
         creditsContainer.setVisibility(View.VISIBLE);
+        setMenuButtonsVisible(false);
     }
 
     private void showHighscore()
@@ -170,18 +208,29 @@ public class MainMenu extends Activity
         hideAllScreens();
         highscoreContainer.setVisibility(View.VISIBLE);
         updateLeaderboardDisplay();
+        setMenuButtonsVisible(false);
     }
     private void showSettings()
     {
         hideAllScreens();
         settingsContainer.setVisibility(View.VISIBLE);
         settingsManager.setButtonVisibility(false);
+        setMenuButtonsVisible(false);
+    }
+    private void showShop()
+    {
+        hideAllScreens();
+        shopContainer.setVisibility(View.VISIBLE);
+        settingsManager.setButtonVisibility(false);
+        setMenuButtonsVisible(false);
+        updateShopDisplay();
     }
     private void showMainMenu()
     {
         hideAllScreens();
         mainMenuContainer.setVisibility(View.VISIBLE);
         settingsManager.setButtonVisibility(true);
+        setMenuButtonsVisible(true);
     }
 
     private void hideAllScreens()
@@ -190,8 +239,22 @@ public class MainMenu extends Activity
         creditsContainer.setVisibility(View.GONE);
         highscoreContainer.setVisibility(View.GONE);
         settingsContainer.setVisibility(View.GONE);
+        shopContainer.setVisibility(View.GONE);
     }
+    private void updateShopDisplay()
+    {
+        if (shopCurrencyText != null)
+        {
+            shopCurrencyText.setText("Coins: " + shopManager.getCurrency());
+        }
 
+        shopEntries.removeAllViews();
+
+        addShopItemRow(1, "Tunneller", 0xFF78EBF5);
+        addShopItemRow(2, "Range Enhancer", 0xFFA54BE1);
+        addShopItemRow(3, "Stabilizer", 0xFFE17341);
+        addShopItemRow(5, "Signal Bypass", 0xFFE66E91);
+    }
     private void updateLeaderboardDisplay()
     {
         leaderboardEntries.removeAllViews();
@@ -267,7 +330,8 @@ public class MainMenu extends Activity
         SeekBar sfxSlider = findViewById(R.id.sfx_slider);
 
         settingsManager.bindSliders(musicSlider, sfxSlider, progress -> {
-            if (menuBgmPlayer != null) {
+            if (menuBgmPlayer != null)
+            {
                 float volume = progress / 100f;
                 menuBgmPlayer.setVolume(volume, volume);
             }
@@ -311,6 +375,72 @@ public class MainMenu extends Activity
         {
             soundPool.release();
             soundPool = null;
+        }
+    }
+
+    private void addShopItemRow(final int type, final String name, int color)
+    {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, 0, 0, 40);
+
+        final TextView infoText = new TextView(this);
+        infoText.setTextSize(18);
+        infoText.setTextColor(color);
+
+        final Button buyBtn = new Button(this);
+        buyBtn.setTextColor(0xFFFFFFFF);
+        buyBtn.setPadding(20, 10, 20, 10);
+
+        updateRowText(type, name, infoText, buyBtn);
+
+        buyBtn.setOnClickListener(v -> {
+            playClickSound();
+            int cost = shopManager.getUpgradeCost(type);
+            if (shopManager.spendCurrency(cost))
+            {
+                shopManager.upgradePowerUp(type);
+                updateShopDisplay();
+            }
+        });
+
+        row.addView(infoText);
+        row.addView(buyBtn);
+        shopEntries.addView(row);
+    }
+
+    private void updateRowText(int type, String name, TextView infoView, Button btn)
+    {
+        int level = shopManager.getPowerUpLevel(type);
+        int cost = shopManager.getUpgradeCost(type);
+
+        String status = (level == 0) ? "LOCKED" : "Lvl " + level;
+        String desc = (level == 0) ? "Unlock to enable spawning" : "Increases spawn rate";
+
+        infoView.setText(name + " (" + status + ")\n" + desc);
+
+        btn.setText((level == 0 ? "UNLOCK" : "UPGRADE") + " - " + cost + " Coins");
+
+        if (shopManager.getCurrency() < cost)
+        {
+            btn.setAlpha(0.5f);
+            btn.setEnabled(false);
+        }
+        else
+        {
+            btn.setAlpha(1.0f);
+            btn.setEnabled(true);
+        }
+    }
+    private void setMenuButtonsVisible(boolean visible)
+    {
+        if (settingsManager != null)
+        {
+            settingsManager.setButtonVisibility(visible);
+        }
+        if (shopButton != null)
+        {
+            shopButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
     }
 }

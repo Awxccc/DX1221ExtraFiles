@@ -104,6 +104,8 @@ public class GameLogic extends View
     private SoundPool soundPool;
     private int nodeMoveId, gameStartId, powerupCollectedId;
     private float sfxVolume = 1.0f;
+    //shop
+    private ShopManager shopManager;
 
     private class Node
     {
@@ -309,6 +311,7 @@ public class GameLogic extends View
     public GameLogic(Context context, AttributeSet attrs)
     {
         super(context, attrs);
+        shopManager = new ShopManager(context);
         setupColours();
         setupAudio(context);
     }
@@ -485,15 +488,46 @@ public class GameLogic extends View
                 }
             }
 
-            // If not hijacked, check for power-up at 2% spawn rate, at a 33%/33%/33% split
-            if (random.nextInt(50) == 0)
-            {
-                int[] types = {POWERUP_TUNNELLER, POWERUP_RANGE_ENHANCER, POWERUP_CONNECTION_STABILIZER, POWERUP_SIGNAL_BYPASS};
-                newNode.powerUpType = types[random.nextInt(types.length)];
-            }
+            newNode.powerUpType = determinePowerUpSpawn();
 
             nodes.add(newNode);
         }
+    }
+
+    private int determinePowerUpSpawn() {
+        // Collect all unlocked powerups and their chances
+        int[] types = {POWERUP_TUNNELLER, POWERUP_RANGE_ENHANCER, POWERUP_CONNECTION_STABILIZER, POWERUP_SIGNAL_BYPASS};
+        float totalChance = 0;
+
+        // Calculate the total probability pool
+        for (int type : types)
+        {
+            totalChance += shopManager.getSpawnChance(type);
+        }
+
+        // Roll the dice (0.0 to 100.0)
+        float roll = random.nextFloat() * 100f;
+
+        // Check if we hit a powerup spawn
+        if (roll < totalChance)
+        {
+            // We hit a spawn! Now decide WHICH one based on their relative weights
+            float currentThreshold = 0;
+            for (int type : types)
+            {
+                float chance = shopManager.getSpawnChance(type);
+                if (chance > 0)
+                {
+                    currentThreshold += chance;
+                    if (roll < currentThreshold)
+                    {
+                        return type;
+                    }
+                }
+            }
+        }
+
+        return POWERUP_NONE;
     }
 
     private void removeOldNodes()
