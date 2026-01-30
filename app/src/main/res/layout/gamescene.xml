@@ -24,6 +24,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottom_bar_image" />
 
+    <!--  Minigame view  -->
+    <com.hejman.dx1221_ica1_project.MinigameLogic
+        android:id="@+id/minigame_logic"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_bar_image" />
+
     <!-- Bottom Bar Image -->
     <ImageView
         android:id="@+id/bottom_bar_image"

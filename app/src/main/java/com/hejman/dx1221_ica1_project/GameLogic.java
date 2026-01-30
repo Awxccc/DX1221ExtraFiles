@@ -21,9 +21,9 @@ public class GameLogic extends View
 {
     // Variables
     private float playerX = 0, playerY = 0, cameraX = 0, cameraY = 0, cameraSpeed = 0.05f;
-    private int gameAreaWidth, gameAreaHeight, score = 0,lastMilestone = 0;
+    private int gameAreaWidth, gameAreaHeight, score = 0,lastMilestone = 0, nodesClicked = 0, bonusScore = 0;
     private static final int WIN_SCORE = 2500;
-    private boolean gameStarted = false, gameWon = false, gameOver = false;
+    private boolean gameStarted = false, gameWon = false, gameOver = false, isPaused = false;
     private final Random random = new Random();
     private BackgroundEntity background;
 
@@ -68,6 +68,9 @@ public class GameLogic extends View
     private static final float TRAIL_TYPE_STABILIZER = 3f;
     private static final float TRAIL_TYPE_BYPASS = 5f;
 
+    private static final int POWERUP_WORMHOLE = 6;
+    private Bitmap bmpWormhole;
+
     // Click Range System Variables
     private boolean isShrinking = false;
     private float clickRangeTop = 0, clickRangeBottom = 0;
@@ -106,6 +109,8 @@ public class GameLogic extends View
     private float sfxVolume = 1.0f;
     //shop
     private ShopManager shopManager;
+
+    private boolean isHeadStartMode = false;
 
     private class Node
     {
@@ -241,6 +246,7 @@ public class GameLogic extends View
                     playerY = node.y;
                     spawnSmoke(playerX, playerY + nodeSize);
                     node.active = false;
+                    nodesClicked++;
                     activatePowerUp(node.powerUpType);
 
                     // Reset click range (if not already tunnelling)
@@ -275,12 +281,14 @@ public class GameLogic extends View
         Bitmap rawHexagon = BitmapFactory.decodeResource(getResources(), R.drawable.hexagon);
         Bitmap rawTriangle = BitmapFactory.decodeResource(getResources(), R.drawable.triangle);
         Bitmap rawSquare = BitmapFactory.decodeResource(getResources(), R.drawable.square);
+        Bitmap rawWormhole = BitmapFactory.decodeResource(getResources(), R.drawable.img_wormhole); // Make sure you have this image
+
 
         bmpPlayer = Bitmap.createScaledBitmap(rawHexagon, diameter, diameterHexHeight, true);
         bmpEnemy = Bitmap.createScaledBitmap(rawHexagon, diameter, diameterHexHeight, true);
         bmpNode = Bitmap.createScaledBitmap(rawTriangle, diameter, diameterTriangleHeight, true);
         bmpPowerup = Bitmap.createScaledBitmap(rawSquare, diameter, diameter, true);
-
+        bmpWormhole = Bitmap.createScaledBitmap(rawWormhole, diameter, diameter, true);
         bmpDeath = BitmapFactory.decodeResource(getResources(), R.drawable.hexagondeath);
 
         // Calculate spawning distances based on screen size
@@ -312,6 +320,10 @@ public class GameLogic extends View
     {
         super(context, attrs);
         shopManager = new ShopManager(context);
+        if (shopManager.consumeHeadStart())
+        {
+            activateHeadStart();
+        }
         setupColours();
         setupAudio(context);
     }
@@ -487,6 +499,13 @@ public class GameLogic extends View
                     continue; // Skip power-up check if hijacked
                 }
             }
+            // If not hijacked, check for wormhole at 1% spawn rate
+            if (random.nextInt(100) == 0)
+            {
+                newNode.powerUpType = POWERUP_WORMHOLE;
+                nodes.add(newNode);
+                continue;// Skip power-up check if its a wormhole
+            }
 
             newNode.powerUpType = determinePowerUpSpawn();
 
@@ -564,7 +583,14 @@ public class GameLogic extends View
         }
         long currentTime = System.currentTimeMillis();
 
-        if (powerUpType == POWERUP_TUNNELLER)
+        if (powerUpType == POWERUP_WORMHOLE)
+        {
+            if (getContext() instanceof GameScene)
+            {
+                ((GameScene) getContext()).enterWormhole();
+            }
+        }
+        else if (powerUpType == POWERUP_TUNNELLER)
         {
             isTunnellerActive = true;
             tunnellerEndTime = currentTime + TUNNELLER_DURATION;
@@ -627,23 +653,44 @@ public class GameLogic extends View
 
         if (isTunnellerActive)
         {
-            if (currentTime > tunnellerEndTime)
+            if (isHeadStartMode)
             {
-                isTunnellerActive = false;
-
-                if (gameStarted && !isConnectionStabilizerActive)
+                if (score >= 200)
                 {
-                    resetClickRange();
-                }
-            }
-            else
-            {
-                isShrinking = false;
+                    isHeadStartMode = false;
+                    isTunnellerActive = false;
 
+                    if (gameStarted && !isConnectionStabilizerActive)
+                    {
+                        resetClickRange();
+                    }
+                }
                 if (currentTime - tunnellerActionTimer > 150)
                 {
                     hopToNearestNode();
                     tunnellerActionTimer = currentTime;
+                }
+            }
+            else
+            {
+                if (currentTime > tunnellerEndTime)
+                {
+                    isTunnellerActive = false;
+
+                    if (gameStarted && !isConnectionStabilizerActive)
+                    {
+                        resetClickRange();
+                    }
+                }
+                else
+                {
+                    isShrinking = false;
+
+                    if (currentTime - tunnellerActionTimer > 150)
+                    {
+                        hopToNearestNode();
+                        tunnellerActionTimer = currentTime;
+                    }
                 }
             }
         }
@@ -1099,7 +1146,8 @@ public class GameLogic extends View
     {
         if (getContext() instanceof GameScene)
         {
-            ((GameScene) getContext()).onGameWin(score);
+            // Changed from 'score' to 'getTotalScore()'
+            ((GameScene) getContext()).onGameWin(getTotalScore());
         }
     }
 
@@ -1109,11 +1157,11 @@ public class GameLogic extends View
         if (gameOver)
             return;
 
-        gameOver = true; // Stop for real
+        gameOver = true;
 
         if (getContext() instanceof GameScene)
         {
-            ((GameScene) getContext()).onGameOver(score);
+            ((GameScene) getContext()).onGameOver(getTotalScore());
         }
     }
 
@@ -1128,6 +1176,16 @@ public class GameLogic extends View
     public int getScore()
     {
         return score;
+    }
+
+    public void addBonusScore(int bonus)
+    {
+        bonusScore += bonus;
+    }
+
+    public int getTotalScore()
+    {
+        return (int) Math.ceil(bonusScore + (score * (nodesClicked / 10.0)));
     }
 
     private float smoothMovement(float current, float target, float speed)
@@ -1165,6 +1223,31 @@ public class GameLogic extends View
     {
         if (soundPool != null) {
             soundPool.play(soundId, sfxVolume, sfxVolume, 1, 0, 1f);
+        }
+    }
+    public void pauseGame()
+    {
+        isPaused = true;
+    }
+
+    public void resumeGame()
+    {
+        isPaused = false;
+    }
+
+    private void activateHeadStart()
+    {
+        isTunnellerActive = true;
+        isHeadStartMode = true;
+    }
+    @Override
+    protected void onDetachedFromWindow()
+    {
+        super.onDetachedFromWindow();
+        if (soundPool != null)
+        {
+            soundPool.release();
+            soundPool = null;
         }
     }
 }

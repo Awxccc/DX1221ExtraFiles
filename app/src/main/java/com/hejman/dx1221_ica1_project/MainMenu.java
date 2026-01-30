@@ -29,6 +29,10 @@ public class MainMenu extends Activity
     private LeaderboardManager leaderboardManager;
     private SettingsManager settingsManager;
 
+    //Tutorial
+    private LinearLayout tutorialContainer;
+    private Button tutorialButton;
+
     //Shop
     private ShopManager shopManager;
     private LinearLayout shopEntries;
@@ -98,6 +102,7 @@ public class MainMenu extends Activity
         Button resetLeaderboardButton = findViewById(R.id.reset_leaderboard_button);
         ImageButton settingsButton = findViewById(R.id.settings_button);
         Button backButtonSettings = findViewById(R.id.back_button_settings);
+        tutorialButton = findViewById(R.id.tutorial_button);
         //Shop
         shopButton = findViewById(R.id.shop_button);
         Button backButtonShop = findViewById(R.id.back_button_shop);
@@ -125,6 +130,17 @@ public class MainMenu extends Activity
             playClickSound();
             Intent intent = new Intent(MainMenu.this, GameScene.class);
             startActivity(intent);
+        });
+
+        //Tutorial buttons
+        tutorialButton.setOnClickListener(v -> {
+            playClickSound();
+            showTutorial();
+        });
+        Button backButtonTutorial = findViewById(R.id.back_button_tutorial);
+        backButtonTutorial.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
         });
 
         // Highscore button
@@ -189,6 +205,7 @@ public class MainMenu extends Activity
         leaderboardEntries = findViewById(R.id.leaderboard_entries);
         settingsContainer = findViewById(R.id.settings_container);
         noEntriesMessage = findViewById(R.id.no_entries_message);
+        tutorialContainer = findViewById(R.id.tutorial_container);
 
         //Shop
         shopContainer = findViewById(R.id.shop_container);
@@ -240,6 +257,7 @@ public class MainMenu extends Activity
         highscoreContainer.setVisibility(View.GONE);
         settingsContainer.setVisibility(View.GONE);
         shopContainer.setVisibility(View.GONE);
+        tutorialContainer.setVisibility(View.GONE);
     }
     private void updateShopDisplay()
     {
@@ -249,6 +267,8 @@ public class MainMenu extends Activity
         }
 
         shopEntries.removeAllViews();
+
+        addHeadStartRow();
 
         addShopItemRow(1, "Tunneller", 0xFF78EBF5);
         addShopItemRow(2, "Range Enhancer", 0xFFA54BE1);
@@ -432,15 +452,64 @@ public class MainMenu extends Activity
             btn.setEnabled(true);
         }
     }
+    private void addHeadStartRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, 0, 0, 40);
+
+        final TextView infoText = new TextView(this);
+        infoText.setTextSize(18);
+        infoText.setTextColor(0xFFFFFF00); // Yellow/Gold color to make it stand out
+
+        final Button buyBtn = new Button(this);
+        buyBtn.setTextColor(0xFFFFFFFF);
+        buyBtn.setPadding(20, 10, 20, 10);
+
+        // Update text logic
+        boolean isBought = shopManager.isHeadStartPurchased();
+        int cost = shopManager.getHeadStartCost();
+
+        if (isBought) {
+            infoText.setText("HEAD START (ACTIVE)\nTunneller active for first 200m");
+            buyBtn.setText("READY FOR NEXT RUN");
+            buyBtn.setEnabled(false); // Cannot buy again until used
+            buyBtn.setAlpha(0.5f);
+            buyBtn.setTextColor(0xFF00FF00); // Green text to show ready
+        } else {
+            infoText.setText("HEAD START (Single Use)\nTunneller active for first 200m");
+            buyBtn.setText("BUY - " + cost + " Coins");
+
+            if (shopManager.getCurrency() < cost) {
+                buyBtn.setEnabled(false);
+                buyBtn.setAlpha(0.5f);
+            } else {
+                buyBtn.setEnabled(true);
+                buyBtn.setAlpha(1.0f);
+            }
+        }
+
+        buyBtn.setOnClickListener(v -> {
+            playClickSound();
+            if (!shopManager.isHeadStartPurchased() && shopManager.spendCurrency(cost)) {
+                shopManager.setHeadStartPurchased(true);
+                updateShopDisplay(); // Refresh UI
+            }
+        });
+
+        row.addView(infoText);
+        row.addView(buyBtn);
+        shopEntries.addView(row);
+    }
     private void setMenuButtonsVisible(boolean visible)
     {
-        if (settingsManager != null)
-        {
-            settingsManager.setButtonVisibility(visible);
-        }
-        if (shopButton != null)
-        {
-            shopButton.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+        settingsManager.setButtonVisibility(visible);
+        shopButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        tutorialButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+    private void showTutorial()
+    {
+        hideAllScreens();
+        tutorialContainer.setVisibility(View.VISIBLE);
+        setMenuButtonsVisible(false);
     }
 }

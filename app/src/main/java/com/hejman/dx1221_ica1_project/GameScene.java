@@ -29,6 +29,7 @@ public class GameScene extends Activity
     private boolean isUpdatingScore = false;
     private View instructionsOverlay;
     private Button closeInstructionsBtn;
+    private MinigameLogic minigameLogic;
 
     //Audio
     private MediaPlayer bgmPlayer;
@@ -60,6 +61,7 @@ public class GameScene extends Activity
         settingsManager = new SettingsManager(this);
         shopManager = new ShopManager(this);
         gameLogic = findViewById(R.id.game_logic);
+        minigameLogic = findViewById(R.id.minigame_logic);
         scoreText = findViewById(R.id.score_text);
         Button quitButton = findViewById(R.id.quit_button);
         instructionsOverlay = findViewById(R.id.instructions_overlay);
@@ -303,6 +305,47 @@ public class GameScene extends Activity
             }
         });
     }
+
+    public void enterWormhole()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                gameLogic.pauseGame();
+                gameLogic.setVisibility(View.GONE);
+                minigameLogic.setVisibility(View.VISIBLE);
+                minigameLogic.startMinigame();
+            }
+        });
+    }
+
+    public void exitWormhole(int bonusPoints)
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                minigameLogic.stopMinigame();
+                minigameLogic.setVisibility(View.GONE);
+                gameLogic.addBonusScore(bonusPoints);
+                gameLogic.resumeGame();
+                gameLogic.setVisibility(View.VISIBLE);
+
+                // Show alert
+                if (milestoneAlertText != null)
+                {
+                    milestoneAlertText.setText("You gained " + bonusPoints + " points!");
+                    milestoneAlertText.setVisibility(View.VISIBLE);
+                    alertHandler.removeCallbacks(hideAlertRunnable);
+                    alertHandler.postDelayed(hideAlertRunnable, 2000);
+                }
+            }
+        });
+    }
+
     private void initAudio()
     {
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
