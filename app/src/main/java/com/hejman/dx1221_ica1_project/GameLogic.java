@@ -99,6 +99,7 @@ public class GameLogic extends View
     private static final int SMOKE_FRAME_DURATION = 50;
 
     // Paint Colours
+    private int playerSkinColor;
     private Paint playerColour, nodeColour, oldNodeColour, tunnellerNodeColour, rangeEnhancerNodeColour;
     private Paint connectionStabilizerNodeColour, hijackedNodeColour, trailPaint, clickRangePaint;
     private Paint signalBypassNodeColour, deathPaint;
@@ -382,8 +383,10 @@ public class GameLogic extends View
     private void setupColours()
     {
         // Player colour
+        playerSkinColor = shopManager.getEquippedColor();
         playerColour = new Paint();
-        playerColour.setColorFilter(new PorterDuffColorFilter(0xFFB4FFAF, PorterDuff.Mode.MULTIPLY));
+        int equippedColor = shopManager.getEquippedColor();
+        playerColour.setColorFilter(new PorterDuffColorFilter(equippedColor, PorterDuff.Mode.MULTIPLY));
         playerColour.setAntiAlias(true);
 
         // Normal node colour
@@ -871,7 +874,7 @@ public class GameLogic extends View
             else if (type == TRAIL_TYPE_STABILIZER) trailPaint.setColor(COLOUR_STABILIZER);
             else if (type == TRAIL_TYPE_RANGE) trailPaint.setColor(COLOUR_RANGE);
             else if (type == TRAIL_TYPE_BYPASS) trailPaint.setColor(COLOUR_BYPASS);
-            else trailPaint.setColor(COLOUR_PLAYER);
+            else trailPaint.setColor(playerSkinColor);
 
             // Only draw trail if visible on screen
             if (Math.max(startY, endY) > -100 && Math.min(startY, endY) < gameAreaHeight + 100)

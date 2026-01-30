@@ -237,11 +237,22 @@ public class MainMenu extends Activity
         shopEntries.removeAllViews();
 
         addHeadStartRow();
-
         addShopItemRow(1, "Tunneller", 0xFF78EBF5);
         addShopItemRow(2, "Range Enhancer", 0xFFA54BE1);
         addShopItemRow(3, "Stabilizer", 0xFFE17341);
         addShopItemRow(5, "Signal Bypass", 0xFFE66E91);
+
+        TextView cosmeticHeader = new TextView(this);
+        cosmeticHeader.setText("PLAYER SKINS");
+        cosmeticHeader.setTextSize(24);
+        cosmeticHeader.setTextColor(0xFFFFFFFF);
+        cosmeticHeader.setPadding(0, 60, 0, 20);
+        shopEntries.addView(cosmeticHeader);
+
+        for (int i = 0; i < ShopManager.COLOR_VALUES.length; i++)
+        {
+            addCosmeticRow(i);
+        }
     }
     private void updateLeaderboardDisplay()
     {
@@ -456,5 +467,69 @@ public class MainMenu extends Activity
         tutorialContainer.setVisibility(View.VISIBLE);
         setMenuButtonsVisible(false);
     }
+    private void addCosmeticRow(final int colorId)
+    {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, 0, 0, 40);
 
+        final TextView infoText = new TextView(this);
+        infoText.setTextSize(18);
+        infoText.setTextColor(ShopManager.COLOR_VALUES[colorId]);
+
+        final Button actionBtn = new Button(this);
+        actionBtn.setTextColor(0xFFFFFFFF);
+        actionBtn.setPadding(20, 10, 20, 10);
+
+        boolean isUnlocked = shopManager.isColorUnlocked(colorId);
+        boolean isEquipped = (shopManager.getEquippedColorId() == colorId);
+
+        infoText.setText(ShopManager.COLOR_NAMES[colorId]);
+
+        if (isEquipped)
+        {
+            actionBtn.setText("EQUIPPED");
+            actionBtn.setEnabled(false);
+            actionBtn.setAlpha(0.5f);
+            actionBtn.setTextColor(0xFF00FF00);
+        }
+        else if (isUnlocked)
+        {
+            actionBtn.setText("EQUIP");
+            actionBtn.setEnabled(true);
+            actionBtn.setAlpha(1.0f);
+            actionBtn.setOnClickListener(v -> {
+                playClickSound();
+                shopManager.equipColor(colorId);
+                updateShopDisplay();
+            });
+        }
+        else
+        {
+            actionBtn.setText("BUY - " + ShopManager.COSMETIC_COST + " Coins");
+            if (shopManager.getCurrency() >= ShopManager.COSMETIC_COST)
+            {
+                actionBtn.setEnabled(true);
+                actionBtn.setAlpha(1.0f);
+                actionBtn.setOnClickListener(v -> {
+                    playClickSound();
+                    if (shopManager.spendCurrency(ShopManager.COSMETIC_COST))
+                    {
+                        shopManager.unlockColor(colorId);
+                        shopManager.equipColor(colorId);
+                        updateShopDisplay();
+                    }
+                });
+            }
+            else
+            {
+                actionBtn.setEnabled(false);
+                actionBtn.setAlpha(0.5f);
+            }
+        }
+
+        row.addView(infoText);
+        row.addView(actionBtn);
+        shopEntries.addView(row);
+    }
 }
