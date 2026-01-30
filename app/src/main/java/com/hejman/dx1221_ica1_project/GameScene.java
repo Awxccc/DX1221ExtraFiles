@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 
@@ -42,6 +41,7 @@ public class GameScene extends Activity
     private ShopManager shopManager;
     private TextView milestoneAlertText;
     private final Handler alertHandler = new Handler();
+    private boolean isPauseDialogShowing = false;
     private final Runnable hideAlertRunnable = new Runnable()
     {
         @Override
@@ -64,7 +64,6 @@ public class GameScene extends Activity
         gameLogic = findViewById(R.id.game_logic);
         minigameLogic = findViewById(R.id.minigame_logic);
         scoreText = findViewById(R.id.score_text);
-        Button quitButton = findViewById(R.id.quit_button);
         pauseButton = findViewById(R.id.pause_button);
         instructionsOverlay = findViewById(R.id.instructions_overlay);
         closeInstructionsBtn = findViewById(R.id.close_instructions_btn);
@@ -83,27 +82,10 @@ public class GameScene extends Activity
         pauseButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View v) {
-                playSound(SoundManager.SFX_BUTTON_CLICK);
-                if (gameLogic.isPaused())
-                {
-                    gameLogic.resumeGame();
-                    pauseButton.setText("PAUSE");
-                }
-                else
-                {
-                    gameLogic.pauseGame();
-                    pauseButton.setText("RESUME");
-                }
-            }
-        });
-        // Quit Button
-        quitButton.setOnClickListener(new View.OnClickListener()
-        {
             public void onClick(View v)
             {
                 playSound(SoundManager.SFX_BUTTON_CLICK);
-                finish();
+                showPauseDialog();
             }
         });
 
@@ -367,41 +349,35 @@ public class GameScene extends Activity
         });
     }
 
-    private void initAudio()
-    {
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(2)
-                .setAudioAttributes(audioAttributes)
-                .build();
-
-        playerLostId = soundPool.load(this, R.raw.player_lost, 1);
-        playerWonId = soundPool.load(this, R.raw.player_won, 1);
-        buttonClickId = soundPool.load(this, R.raw.button_click, 1);
-
-        bgmPlayer = MediaPlayer.create(this, R.raw.gamescene_bgm);
-        if (bgmPlayer != null)
-        {
-            bgmPlayer.setLooping(true);
-            float volume = settingsManager.getMusicVolume() / 100f;
-            bgmPlayer.setVolume(volume, volume);
-        }
-    }
-    private void stopBGM()
-    {
-        if (bgmPlayer != null && bgmPlayer.isPlaying())
-        {
-            bgmPlayer.stop();
-        }
-    }
-
     private void playSound(int soundId)
     {
         SoundManager.getInstance(this).playSFX(soundId);
+    }
+    private void showPauseDialog() {
+        if (isPauseDialogShowing) return;
+
+        isPauseDialogShowing = true;
+        gameLogic.pauseGame();
+
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Pause Game")
+                .setMessage("Exit to main menu?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    isPauseDialogShowing = false;
+                    finish();
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    isPauseDialogShowing = false;
+                    gameLogic.resumeGame();
+                    pauseButton.setText("PAUSE");
+                })
+                .show();
+    }
+    @Override
+    public void onBackPressed()
+    {
+        showPauseDialog();
     }
 
     @Override
