@@ -75,7 +75,7 @@ public class GameScene extends Activity
             @Override
             public void onClick(View v)
             {
-                playSound(buttonClickId);
+                playSound(SoundManager.SFX_BUTTON_CLICK);
                 instructionsOverlay.setVisibility(View.GONE);
             }
         });
@@ -84,7 +84,7 @@ public class GameScene extends Activity
         {
             @Override
             public void onClick(View v) {
-                playSound(buttonClickId);
+                playSound(SoundManager.SFX_BUTTON_CLICK);
                 if (gameLogic.isPaused())
                 {
                     gameLogic.resumeGame();
@@ -102,7 +102,7 @@ public class GameScene extends Activity
         {
             public void onClick(View v)
             {
-                playSound(buttonClickId);
+                playSound(SoundManager.SFX_BUTTON_CLICK);
                 finish();
             }
         });
@@ -252,7 +252,7 @@ public class GameScene extends Activity
             @Override
             public void onClick(View v)
             {
-                playSound(buttonClickId);
+                playSound(SoundManager.SFX_BUTTON_CLICK);
                 String playerName = nameInput.getText().toString().trim();
                 if (playerName.isEmpty())
                 {
@@ -275,8 +275,8 @@ public class GameScene extends Activity
     // Show the game over screen with final score
     private void showGameOver(int finalScore)
     {
-        stopBGM();
-        playSound(playerLostId);
+        SoundManager.getInstance(this).stopBGM();
+        SoundManager.getInstance(this).playSFX(SoundManager.SFX_PLAYER_LOST);
         int coinsEarned = finalScore / 10;
         shopManager.addCurrency(coinsEarned);
 
@@ -288,7 +288,7 @@ public class GameScene extends Activity
             @Override
             public void onClick(View v)
             {
-                playSound(buttonClickId);
+                playSound(SoundManager.SFX_BUTTON_CLICK);
                 String playerName = nameInput.getText().toString().trim();
                 if (playerName.isEmpty())
                 {

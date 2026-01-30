@@ -11,9 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.SeekBar;
 import java.util.ArrayList;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
 
 public class MainMenu extends Activity
 {
@@ -38,10 +35,6 @@ public class MainMenu extends Activity
     private LinearLayout shopEntries;
     private TextView shopCurrencyText;
     private ImageButton shopButton;
-    //Audio
-    private MediaPlayer menuBgmPlayer;
-    private SoundPool soundPool;
-    private int buttonClickId;
 
 
     @Override

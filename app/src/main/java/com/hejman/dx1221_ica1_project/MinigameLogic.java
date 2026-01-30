@@ -277,7 +277,7 @@ public class MinigameLogic extends View implements SensorEventListener
 
                 if (distance < 90)
                 {
-                    playSound(explosionId);
+                    playSound(SoundManager.SFX_EXPLOSION);
                     endMinigameFailed();
                     return;
                 }
@@ -306,7 +306,7 @@ public class MinigameLogic extends View implements SensorEventListener
 
                 if (distance < 80)
                 {
-                    playSound(starPickupId);
+                    playSound(SoundManager.SFX_STAR_PICKUP);
                     bonusPoints += 125;
                     collectibles.remove(i);
                 }

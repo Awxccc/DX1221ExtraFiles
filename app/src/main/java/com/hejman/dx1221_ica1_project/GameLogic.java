@@ -102,11 +102,6 @@ public class GameLogic extends View
     private Paint playerColour, nodeColour, oldNodeColour, tunnellerNodeColour, rangeEnhancerNodeColour;
     private Paint connectionStabilizerNodeColour, hijackedNodeColour, trailPaint, clickRangePaint;
     private Paint signalBypassNodeColour, deathPaint;
-
-    //Audio
-    private SoundPool soundPool;
-    private int nodeMoveId, gameStartId, powerupCollectedId;
-    private float sfxVolume = 1.0f;
     //shop
     private ShopManager shopManager;
 
@@ -236,7 +231,7 @@ public class GameLogic extends View
                         gameStarted = true;
                         isShrinking = true;
                         lastShrinkTime = System.currentTimeMillis();
-                        playSound(gameStartId);
+                        playSound(SoundManager.SFX_GAME_START);
 
                         if (pendingHeadStart)
                         {
@@ -246,7 +241,7 @@ public class GameLogic extends View
                     }
                     else
                     {
-                        playSound(nodeMoveId);
+                        playSound(SoundManager.SFX_NODE_MOVE);
                     }
 
                     if (node.powerUpType == POWERUP_HIJACKED && isSignalBypassActive)
@@ -592,7 +587,7 @@ public class GameLogic extends View
     {
         if (powerUpType != POWERUP_NONE && powerUpType != POWERUP_HIJACKED)
         {
-            playSound(powerupCollectedId);
+            playSound(SoundManager.SFX_POWERUP);
         }
         long currentTime = System.currentTimeMillis();
 
