@@ -29,6 +29,7 @@ public class GameScene extends Activity
     private boolean isUpdatingScore = false;
     private View instructionsOverlay;
     private Button closeInstructionsBtn;
+    private Button pauseButton;
     private MinigameLogic minigameLogic;
 
     //Audio
@@ -64,10 +65,11 @@ public class GameScene extends Activity
         minigameLogic = findViewById(R.id.minigame_logic);
         scoreText = findViewById(R.id.score_text);
         Button quitButton = findViewById(R.id.quit_button);
+        pauseButton = findViewById(R.id.pause_button);
         instructionsOverlay = findViewById(R.id.instructions_overlay);
         closeInstructionsBtn = findViewById(R.id.close_instructions_btn);
         milestoneAlertText = findViewById(R.id.milestone_alert_text);
-        initAudio();
+        SoundManager.getInstance(this).playBGM(R.raw.gamescene_bgm);
         closeInstructionsBtn.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -75,6 +77,24 @@ public class GameScene extends Activity
             {
                 playSound(buttonClickId);
                 instructionsOverlay.setVisibility(View.GONE);
+            }
+        });
+        //Pause button
+        pauseButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                playSound(buttonClickId);
+                if (gameLogic.isPaused())
+                {
+                    gameLogic.resumeGame();
+                    pauseButton.setText("PAUSE");
+                }
+                else
+                {
+                    gameLogic.pauseGame();
+                    pauseButton.setText("RESUME");
+                }
             }
         });
         // Quit Button
@@ -164,7 +184,7 @@ public class GameScene extends Activity
                 if (gameLogic != null && scoreText != null)
                 {
                     int currentScore = gameLogic.getScore();
-                    scoreText.setText(String.valueOf(currentScore));
+                    scoreText.setText("Distance: "+String.valueOf(currentScore)+"M");
                 }
 
                 // Update the score with some delay (i dunno performance reasons)
@@ -218,15 +238,15 @@ public class GameScene extends Activity
     // Show the win screen with final score
     private void showGameWin(int finalScore)
     {
-        stopBGM();
-        playSound(playerWonId);
+        SoundManager.getInstance(this).stopBGM();
+        SoundManager.getInstance(this).playSFX(SoundManager.SFX_PLAYER_WON);
 
         int coinsEarned = finalScore / 10;
         shopManager.addCurrency(coinsEarned);
 
         gameOverTitle.setText("YOU WIN!");
         gameOverTitle.setTextColor(0xFF00FF00);
-        gameOverScoreText.setText("Distance: " + finalScore + "m\nCoins Earned: " + coinsEarned);
+        gameOverScoreText.setText("Score: " + finalScore + "\nCoins Earned: " + coinsEarned);
         submitButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -262,7 +282,7 @@ public class GameScene extends Activity
 
         gameOverTitle.setText("GAME OVER");
         gameOverTitle.setTextColor(0xFFFFFFFF);
-        gameOverScoreText.setText("Distance: " + finalScore + "m\nCoins Earned: " + coinsEarned);
+        gameOverScoreText.setText("Score: " + finalScore + "\nCoins Earned: " + coinsEarned);
         submitButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -315,6 +335,7 @@ public class GameScene extends Activity
             {
                 gameLogic.pauseGame();
                 gameLogic.setVisibility(View.GONE);
+                pauseButton.setVisibility(View.GONE);
                 minigameLogic.setVisibility(View.VISIBLE);
                 minigameLogic.startMinigame();
             }
@@ -333,7 +354,7 @@ public class GameScene extends Activity
                 gameLogic.addBonusScore(bonusPoints);
                 gameLogic.resumeGame();
                 gameLogic.setVisibility(View.VISIBLE);
-
+                pauseButton.setVisibility(View.VISIBLE);
                 // Show alert
                 if (milestoneAlertText != null)
                 {
@@ -380,11 +401,7 @@ public class GameScene extends Activity
 
     private void playSound(int soundId)
     {
-        float volume = settingsManager.getSFXVolume() / 100f;
-        if (soundPool != null)
-        {
-            soundPool.play(soundId, volume, volume, 1, 0, 1f);
-        }
+        SoundManager.getInstance(this).playSFX(soundId);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class GameLogic extends View
     private float playerX = 0, playerY = 0, cameraX = 0, cameraY = 0, cameraSpeed = 0.05f;
     private int gameAreaWidth, gameAreaHeight, score = 0,lastMilestone = 0, nodesClicked = 0, bonusScore = 0;
     private static final int WIN_SCORE = 2500;
-    private boolean gameStarted = false, gameWon = false, gameOver = false, isPaused = false;
+    private boolean gameStarted = false, gameWon = false, gameOver = false, isPaused = false, pendingHeadStart = false;
     private final Random random = new Random();
     private BackgroundEntity background;
 
@@ -170,42 +170,50 @@ public class GameLogic extends View
     {
         super.onDraw(canvas);
         background.draw(canvas);
-        updateCamera();
-        updateClickRangeColor();
 
-        currentRotation = (currentRotation + 2) % 360;
+        if (!isPaused) {
+            updateCamera();
+            updateClickRangeColor();
 
-        if (shouldShowRange())
-        {
-            canvas.drawRect(0, clickRangeTop, gameAreaWidth, clickRangeBottom, clickRangePaint);
-        }
+            currentRotation = (currentRotation + 2) % 360;
 
-        drawTrails(canvas);
-        float playerScreenX = playerX - cameraX + (gameAreaWidth / 2f);
-        float playerScreenY = playerY - cameraY + (gameAreaHeight / 2f);
-        drawSmokeParticles(canvas);
-        if (isDying)
-        {
-            drawDeathAnimation(canvas, playerScreenX, playerScreenY);
+            if (shouldShowRange()) {
+                canvas.drawRect(0, clickRangeTop, gameAreaWidth, clickRangeBottom, clickRangePaint);
+            }
+
+            drawTrails(canvas);
+            float playerScreenX = playerX - cameraX + (gameAreaWidth / 2f);
+            float playerScreenY = playerY - cameraY + (gameAreaHeight / 2f);
+            drawSmokeParticles(canvas);
+            if (isDying) {
+                drawDeathAnimation(canvas, playerScreenX, playerScreenY);
+            } else {
+                drawRotatedBitmap(canvas, bmpPlayer, playerScreenX, playerScreenY, currentRotation, getCurrentPlayerPaint());
+            }
+            drawNodes(canvas);
+
+            for (EnemyEntity enemy : enemies) {
+                enemy.draw(canvas, cameraX, cameraY, gameAreaWidth, gameAreaHeight);
+            }
+
+            updateGameLogic();
         }
         else
         {
+            drawTrails(canvas);
+            float playerScreenX = playerX - cameraX + (gameAreaWidth / 2f);
+            float playerScreenY = playerY - cameraY + (gameAreaHeight / 2f);
             drawRotatedBitmap(canvas, bmpPlayer, playerScreenX, playerScreenY, currentRotation, getCurrentPlayerPaint());
+            canvas.drawColor(0x99000000);
+            drawNodes(canvas);
         }
-        drawNodes(canvas);
-
-        for (EnemyEntity enemy : enemies)
-        {
-            enemy.draw(canvas, cameraX, cameraY, gameAreaWidth, gameAreaHeight);
-        }
-
-        updateGameLogic();
         invalidate();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
+        if (isPaused) return false;
         if (event.getAction() == MotionEvent.ACTION_DOWN)
         {
             float touchX = event.getX();
@@ -229,6 +237,12 @@ public class GameLogic extends View
                         isShrinking = true;
                         lastShrinkTime = System.currentTimeMillis();
                         playSound(gameStartId);
+
+                        if (pendingHeadStart)
+                        {
+                            activateHeadStart();
+                            pendingHeadStart = false;
+                        }
                     }
                     else
                     {
@@ -281,7 +295,7 @@ public class GameLogic extends View
         Bitmap rawHexagon = BitmapFactory.decodeResource(getResources(), R.drawable.hexagon);
         Bitmap rawTriangle = BitmapFactory.decodeResource(getResources(), R.drawable.triangle);
         Bitmap rawSquare = BitmapFactory.decodeResource(getResources(), R.drawable.square);
-        Bitmap rawWormhole = BitmapFactory.decodeResource(getResources(), R.drawable.img_wormhole); // Make sure you have this image
+        Bitmap rawWormhole = BitmapFactory.decodeResource(getResources(), R.drawable.img_wormhole);
 
 
         bmpPlayer = Bitmap.createScaledBitmap(rawHexagon, diameter, diameterHexHeight, true);
@@ -322,10 +336,9 @@ public class GameLogic extends View
         shopManager = new ShopManager(context);
         if (shopManager.consumeHeadStart())
         {
-            activateHeadStart();
+            pendingHeadStart = true;
         }
         setupColours();
-        setupAudio(context);
     }
 
     private void updateGameLogic()
@@ -747,7 +760,7 @@ public class GameLogic extends View
     private void updateClickRange()
     {
         // Don't shrink if the connection stabilizer power-up is active or if the game hasn't started yet
-        if (!gameStarted || !isShrinking || isConnectionStabilizerActive)
+        if (!gameStarted || !isShrinking || isConnectionStabilizerActive || isHeadStartMode)
             return;
 
         long currentTime = System.currentTimeMillis();
@@ -994,13 +1007,26 @@ public class GameLogic extends View
                     Bitmap spriteToUse;
 
                     // Select sprite based on type
-                    if (node.powerUpType == POWERUP_NONE || node.powerUpType == POWERUP_HIJACKED)
+                    if (node.powerUpType == POWERUP_WORMHOLE)
+                    {
+                        spriteToUse = bmpWormhole;
+                    }
+                    else if (node.powerUpType == POWERUP_NONE || node.powerUpType == POWERUP_HIJACKED)
                     {
                         spriteToUse = bmpNode;
                     }
                     else
                     {
                         spriteToUse = bmpPowerup;
+                    }
+
+                    if (node.powerUpType == POWERUP_WORMHOLE)
+                    {
+                        nodePaint = null;
+                    }
+                    else
+                    {
+                        nodePaint = getNodeColor(node);
                     }
 
                     drawRotatedBitmap(canvas, spriteToUse, nodeScreenX, nodeScreenY, currentRotation, nodePaint);
@@ -1146,14 +1172,12 @@ public class GameLogic extends View
     {
         if (getContext() instanceof GameScene)
         {
-            // Changed from 'score' to 'getTotalScore()'
             ((GameScene) getContext()).onGameWin(getTotalScore());
         }
     }
 
     private void triggerGameOver()
     {
-        // We make sure this doesn't get called twice
         if (gameOver)
             return;
 
@@ -1198,32 +1222,9 @@ public class GameLogic extends View
         // Show range when game started (except during tunneller)
         return gameStarted && !isTunnellerActive;
     }
-    private void setupAudio(Context context)
+    private void playSound(int soundResId)
     {
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(5)
-                .setAudioAttributes(audioAttributes)
-                .build();
-
-        // Load the sounds
-        nodeMoveId = soundPool.load(context, R.raw.node_move, 1);
-        gameStartId = soundPool.load(context, R.raw.game_start, 1);
-        powerupCollectedId = soundPool.load(context, R.raw.powerup_collected, 1);
-
-        // Get volume settings
-        SettingsManager settingsManager = new SettingsManager(context);
-        sfxVolume = settingsManager.getSFXVolume() / 100f;
-    }
-    private void playSound(int soundId)
-    {
-        if (soundPool != null) {
-            soundPool.play(soundId, sfxVolume, sfxVolume, 1, 0, 1f);
-        }
+        SoundManager.getInstance(getContext()).playSFX(soundResId);
     }
     public void pauseGame()
     {
@@ -1244,10 +1245,9 @@ public class GameLogic extends View
     protected void onDetachedFromWindow()
     {
         super.onDetachedFromWindow();
-        if (soundPool != null)
-        {
-            soundPool.release();
-            soundPool = null;
-        }
+    }
+    public boolean isPaused()
+    {
+        return isPaused;
     }
 }

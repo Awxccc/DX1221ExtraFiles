@@ -10,6 +10,7 @@ public class SettingsManager
     private static final String PREF_NAME = "GameSettings";
     private static final String KEY_MUSIC = "music_vol";
     private static final String KEY_SFX = "sfx_vol";
+    private static final String KEY_TILT = "tilt_sensitivity";
     private ImageButton settingsButton;
     private final SharedPreferences prefs;
 
@@ -22,17 +23,21 @@ public class SettingsManager
     }
 
     // Set up sliders from the main menu class
-    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider, OnVolumeChangedListener musicListener)
+    public void bindSliders(SeekBar musicSlider, SeekBar sfxSlider, SeekBar tiltSlider, OnVolumeChangedListener musicListener)
     {
         musicSlider.setProgress(getMusicVolume());
         sfxSlider.setProgress(getSFXVolume());
+        tiltSlider.setProgress(getTiltSensitivity());
 
-        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        musicSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
                 saveMusicVolume(progress);
                 // Now musicListener is recognized and can be called
-                if (fromUser && musicListener != null) {
+                if (fromUser && musicListener != null)
+                {
                     musicListener.onVolumeChanged(progress);
                 }
             }
@@ -47,6 +52,16 @@ public class SettingsManager
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
                 saveSFXVolume(progress);
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        tiltSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                saveTiltSensitivity(progress);
             }
 
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -94,5 +109,21 @@ public class SettingsManager
     public int getSFXVolume()
     {
         return prefs.getInt(KEY_SFX, 100);
+    }
+    private void saveTiltSensitivity(int sensitivity)
+    {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(KEY_TILT, sensitivity);
+        editor.apply();
+    }
+    public int getTiltSensitivity()
+    {
+        return prefs.getInt(KEY_TILT, 50);
+    }
+
+    public float getTiltSensitivityValue()
+    {
+        int progress = getTiltSensitivity();
+        return 1.0f + (progress / 10.0f);
     }
 }

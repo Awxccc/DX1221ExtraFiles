@@ -55,39 +55,14 @@ public class MainMenu extends Activity
         // Setup leaderboard manager
         leaderboardManager = new LeaderboardManager(this);
         settingsManager = new SettingsManager(this);
-        setupAudio();
+        SoundManager.getInstance(this).playBGM(R.raw.mainmenu_bgm);
         setupContainers();
         setupButtons();
         updateLeaderboardDisplay();
     }
-    private void setupAudio()
-    {
-        // 1. Setup SoundPool for SFX
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(5)
-                .setAudioAttributes(audioAttributes)
-                .build();
-
-        buttonClickId = soundPool.load(this, R.raw.button_click, 1);
-
-        // 2. Setup MediaPlayer for BGM
-        menuBgmPlayer = MediaPlayer.create(this, R.raw.mainmenu_bgm);
-        if (menuBgmPlayer != null)
-        {
-            menuBgmPlayer.setLooping(true);
-        }
-    }
     private void playClickSound()
     {
-        float volume = settingsManager.getSFXVolume() / 100f;
-        if (soundPool != null) {
-            soundPool.play(buttonClickId, volume, volume, 1, 0, 1f);
-        }
+        SoundManager.getInstance(this).playSFX(SoundManager.SFX_BUTTON_CLICK);
     }
     // Setup all buttons and their click actions
     private void setupButtons()
@@ -348,54 +323,30 @@ public class MainMenu extends Activity
     {
         SeekBar musicSlider = findViewById(R.id.music_slider);
         SeekBar sfxSlider = findViewById(R.id.sfx_slider);
+        SeekBar tiltSlider = findViewById(R.id.tilt_slider);
 
-        settingsManager.bindSliders(musicSlider, sfxSlider, progress -> {
-            if (menuBgmPlayer != null)
-            {
-                float volume = progress / 100f;
-                menuBgmPlayer.setVolume(volume, volume);
-            }
+        settingsManager.bindSliders(musicSlider, sfxSlider, tiltSlider, progress -> {
+            SoundManager.getInstance(this).updateMusicVolume();
         });
     }
     @Override
     protected void onResume()
     {
         super.onResume();
-        // Start BGM
-        if (menuBgmPlayer != null && !menuBgmPlayer.isPlaying())
-        {
-            float volume = settingsManager.getMusicVolume() / 100f;
-            menuBgmPlayer.setVolume(volume, volume);
-            menuBgmPlayer.start();
-        }
+        SoundManager.getInstance(this).playBGM(R.raw.mainmenu_bgm);
     }
 
     @Override
     protected void onPause()
     {
         super.onPause();
-        // Pause BGM
-        if (menuBgmPlayer != null && menuBgmPlayer.isPlaying())
-        {
-            menuBgmPlayer.pause();
-        }
+        SoundManager.getInstance(this).pauseBGM();
     }
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
-        // Clean up audio
-        if (menuBgmPlayer != null)
-        {
-            menuBgmPlayer.release();
-            menuBgmPlayer = null;
-        }
-        if (soundPool != null)
-        {
-            soundPool.release();
-            soundPool = null;
-        }
     }
 
     private void addShopItemRow(final int type, final String name, int color)
@@ -512,4 +463,5 @@ public class MainMenu extends Activity
         tutorialContainer.setVisibility(View.VISIBLE);
         setMenuButtonsVisible(false);
     }
+
 }

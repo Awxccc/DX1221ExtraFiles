@@ -33,8 +33,7 @@ public class MinigameLogic extends View implements SensorEventListener
     // Accelerometer ( for the player )
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    float tiltSensitivity = 6.0f; // Adjust this to tweak the speed of the player
-    // Maybe better to turn it into a setting if its not cheating lol
+    float tiltSensitivity;
 
     // Spawn Variables
     private long lastObstacleSpawn = 0, lastCollectibleSpawn = 0;
@@ -160,6 +159,8 @@ public class MinigameLogic extends View implements SensorEventListener
         setupColours();
         setupSensor(context);
         setupAudio(context);
+        SettingsManager settings = new SettingsManager(context);
+        tiltSensitivity = settings.getTiltSensitivityValue();
     }
 
     private void updateGameLogic(long currentTime)
@@ -426,21 +427,20 @@ public class MinigameLogic extends View implements SensorEventListener
 
     private void playSound(int soundId)
     {
-        if (soundPool != null)
-        {
-            soundPool.play(soundId, sfxVolume, sfxVolume, 1, 0, 1f);
-        }
+        SoundManager.getInstance(getContext()).playSFX(soundId);
     }
 
     // Start the minigame
     public void startMinigame()
     {
+        SettingsManager settings = new SettingsManager(getContext());
+        tiltSensitivity = settings.getTiltSensitivityValue();
         isActive = true;
         startTime = System.currentTimeMillis();
         lastObstacleSpawn = startTime;
         lastCollectibleSpawn = startTime;
         playerX = screenWidth / 2f;
-        bonusPoints = 400;
+        bonusPoints = 0;
         obstacles.clear();
         collectibles.clear();
 
