@@ -36,6 +36,12 @@ public class MainMenu extends Activity
     private TextView shopCurrencyText;
     private ImageButton shopButton;
 
+    //Achievements
+    private AchievementManager achievementManager;
+    private LinearLayout achievementsContainer;
+    private LinearLayout achievementEntries;
+    private ImageButton achievementsButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,9 +51,10 @@ public class MainMenu extends Activity
 
         shopManager = new ShopManager(this);
 
-        // Setup leaderboard manager
+        // Setup all of the managers
         leaderboardManager = new LeaderboardManager(this);
         settingsManager = new SettingsManager(this);
+        achievementManager = new AchievementManager(this);
         SoundManager.getInstance(this).playBGM(R.raw.mainmenu_bgm);
         setupContainers();
         setupButtons();
@@ -71,10 +78,12 @@ public class MainMenu extends Activity
         ImageButton settingsButton = findViewById(R.id.settings_button);
         Button backButtonSettings = findViewById(R.id.back_button_settings);
         tutorialButton = findViewById(R.id.tutorial_button);
-        //Shop
         shopButton = findViewById(R.id.shop_button);
         Button backButtonShop = findViewById(R.id.back_button_shop);
         Button resetShopButton = findViewById(R.id.reset_shop_button);
+        achievementsButton = findViewById(R.id.achievements_button);
+        Button backButtonAchievements = findViewById(R.id.back_button_achievements);
+        Button resetAchievementsButton = findViewById(R.id.reset_achievements_button);
 
         //Shop buttons
         shopButton.setOnClickListener(v -> {
@@ -91,6 +100,23 @@ public class MainMenu extends Activity
             playClickSound();
             shopManager.resetAllShopProgress();
             updateShopDisplay();
+        });
+
+        // Achievements button
+        achievementsButton.setOnClickListener(v -> {
+            playClickSound();
+            showAchievements();
+        });
+
+        backButtonAchievements.setOnClickListener(v -> {
+            playClickSound();
+            showMainMenu();
+        });
+
+        resetAchievementsButton.setOnClickListener(v -> {
+            playClickSound();
+            achievementManager.resetAllAchievements();
+            updateAchievementsDisplay();
         });
 
         // Play game button
@@ -174,11 +200,11 @@ public class MainMenu extends Activity
         settingsContainer = findViewById(R.id.settings_container);
         noEntriesMessage = findViewById(R.id.no_entries_message);
         tutorialContainer = findViewById(R.id.tutorial_container);
-
-        //Shop
         shopContainer = findViewById(R.id.shop_container);
         shopEntries = findViewById(R.id.shop_entries);
         shopCurrencyText = findViewById(R.id.shop_currency_text);
+        achievementsContainer = findViewById(R.id.achievements_container);
+        achievementEntries = findViewById(R.id.achievement_entries);
     }
 
     private void showCredits()
@@ -226,6 +252,7 @@ public class MainMenu extends Activity
         settingsContainer.setVisibility(View.GONE);
         shopContainer.setVisibility(View.GONE);
         tutorialContainer.setVisibility(View.GONE);
+        achievementsContainer.setVisibility(View.GONE);
     }
     private void updateShopDisplay()
     {
@@ -323,6 +350,7 @@ public class MainMenu extends Activity
         LeaderboardManager manager = new LeaderboardManager(context);
         manager.addScore(playerName, score);
     }
+
     private void setupSliders()
     {
         SeekBar musicSlider = findViewById(R.id.music_slider);
@@ -332,25 +360,6 @@ public class MainMenu extends Activity
         settingsManager.bindSliders(musicSlider, sfxSlider, tiltSlider, progress -> {
             SoundManager.getInstance(this).updateMusicVolume();
         });
-    }
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-        SoundManager.getInstance(this).playBGM(R.raw.mainmenu_bgm);
-    }
-
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
-        SoundManager.getInstance(this).pauseBGM();
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
     }
 
     private void addShopItemRow(final int type, final String name, int color)
@@ -460,6 +469,7 @@ public class MainMenu extends Activity
         settingsManager.setButtonVisibility(visible);
         shopButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         tutorialButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        achievementsButton.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
     private void showTutorial()
     {
@@ -531,5 +541,118 @@ public class MainMenu extends Activity
         row.addView(infoText);
         row.addView(actionBtn);
         shopEntries.addView(row);
+    }
+
+    private void showAchievements()
+    {
+        hideAllScreens();
+        achievementsContainer.setVisibility(View.VISIBLE);
+        settingsManager.setButtonVisibility(false);
+        setMenuButtonsVisible(false);
+        updateAchievementsDisplay();
+    }
+
+    private void updateAchievementsDisplay()
+    {
+        achievementEntries.removeAllViews();
+
+        for (int i = 0; i < achievementManager.getTotalAchievements(); i++)
+        {
+            LinearLayout achievementRow = createAchievementRow(i);
+            achievementEntries.addView(achievementRow);
+        }
+    }
+
+    private LinearLayout createAchievementRow(int achievementId)
+    {
+        boolean isUnlocked = achievementManager.isAchievementUnlocked(achievementId);
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setBackground(getDrawable(R.drawable.gameover_input_style));
+        row.setPadding(20, 20, 20, 20);
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,  LinearLayout.LayoutParams.WRAP_CONTENT);
+        rowParams.setMargins(0, 0, 0, 15);
+        row.setLayoutParams(rowParams);
+
+        // Medal icon
+        TextView medalIcon = new TextView(this);
+        medalIcon.setText("\uD83C\uDFF5\uFE0F"); // I'm just going to use this emoji to represent the "medal" lmao
+        medalIcon.setTextSize(40);
+        medalIcon.setGravity(android.view.Gravity.CENTER);
+
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,  LinearLayout.LayoutParams.WRAP_CONTENT);
+        iconParams.setMargins(0, 0, 20, 0);
+        medalIcon.setLayoutParams(iconParams);
+
+        if (!isUnlocked)
+        {
+            medalIcon.setAlpha(0.3f);
+        }
+
+        // Text container for the name and description
+        LinearLayout textContainer = new LinearLayout(this);
+        textContainer.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+        textContainer.setLayoutParams(textParams);
+
+        // Achievement name
+        TextView nameText = new TextView(this);
+        if (isUnlocked)
+        {
+            nameText.setText(achievementManager.getAchievementName(achievementId));
+            nameText.setTextColor(0xFFFFD700);
+        }
+        else
+        {
+            nameText.setText("???"); // Replaced with this if the achievement is locked
+            nameText.setTextColor(0xFF888888);
+        }
+        nameText.setTextSize(18);
+        nameText.setTypeface(null, android.graphics.Typeface.BOLD);
+
+        // Achievement description
+        TextView descText = new TextView(this);
+
+        // Special achievements will hide their description until unlocked
+        if (!isUnlocked && achievementId >= 14)
+        {
+            descText.setText("Unlock this achievement to reveal!");
+            descText.setTextColor(0xFF888888);
+        }
+        else // Normal achievements will show their description as "I" intended!
+        {
+            descText.setText(achievementManager.getAchievementDescription(achievementId));
+            descText.setTextColor(0xFFCCCCCC);
+        }
+        descText.setTextSize(14);
+
+        textContainer.addView(nameText);
+        textContainer.addView(descText);
+
+        row.addView(medalIcon);
+        row.addView(textContainer);
+
+        return row;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        SoundManager.getInstance(this).playBGM(R.raw.mainmenu_bgm);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        SoundManager.getInstance(this).pauseBGM();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
     }
 }

@@ -42,6 +42,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Achievement button -->
+    <ImageButton
+        android:id="@+id/achievements_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="140dp"
+        android:layout_marginRight="20dp"
+        android:src="@drawable/ui_medalicon"
+        android:background="@drawable/settings_button_style"
+        android:scaleType="fitCenter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Main Menu Screen -->
     <LinearLayout
         android:id="@+id/main_menu_container"
@@ -202,7 +215,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:text="Version 1.0.7"
+                android:text="Version 1.0.8"
                 android:textSize="20sp"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
@@ -501,7 +514,7 @@
                 android:text="BACK"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="left|center_vertical"/>
 
             <Button
                 android:id="@+id/reset_shop_button"
@@ -628,7 +641,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Allows you to use Hijacked (Red) nodes."
+                    android:text="Allows you to tap on Hijacked (Red) nodes."
                     android:textColor="#CCCCCC"
                     android:textSize="16sp"
                     android:gravity="center"
@@ -645,7 +658,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Corrupted nodes. You CANNOT click these unless you have a Signal Bypass!"
+                    android:text="Corrupted nodes. You CANNOT click on these unless you have a Signal Bypass!"
                     android:textColor="#CCCCCC"
                     android:textSize="16sp"
                     android:gravity="center"
@@ -663,7 +676,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sends u into the wormhole and starts a minigame."
+                    android:text="Sends you into the wormhole and starts a simple minigame."
                     android:textColor="#CCCCCC"
                     android:textSize="16sp"
                     android:gravity="center"
@@ -681,6 +694,65 @@
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+
+<!-- Achievements Screen -->
+    <LinearLayout
+        android:id="@+id/achievements_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="30dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACHIEVEMENTS"
+            android:textColor="#FFFFFF"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/achievement_entries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <Button
+                android:id="@+id/back_button_achievements"
+                android:layout_width="200dp"
+                android:layout_height="60dp"
+                android:background="@drawable/button_style"
+                android:text="BACK"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:layout_gravity="left|center_vertical"/>
+
+            <Button
+                android:id="@+id/reset_achievements_button"
+                android:layout_width="80dp"
+                android:layout_height="50dp"
+                android:background="@drawable/gameover_button_style"
+                android:text="RESET"
+                android:textColor="#FF4444"
+                android:textSize="14sp"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
 
     </LinearLayout>
 

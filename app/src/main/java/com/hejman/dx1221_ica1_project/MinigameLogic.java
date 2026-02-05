@@ -440,7 +440,7 @@ public class MinigameLogic extends View implements SensorEventListener
         lastObstacleSpawn = startTime;
         lastCollectibleSpawn = startTime;
         playerX = screenWidth / 2f;
-        bonusPoints = 0;
+        bonusPoints = 375;
         obstacles.clear();
         collectibles.clear();
 

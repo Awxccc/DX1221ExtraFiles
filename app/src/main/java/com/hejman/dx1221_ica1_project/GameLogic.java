@@ -27,6 +27,17 @@ public class GameLogic extends View
     private final Random random = new Random();
     private BackgroundEntity background;
 
+    // Additional varoiables for achievement tracking purposes
+    private int powerUpsCollected = 0;
+    private int tunnellersCollected = 0;
+    private int rangeEnhancersCollected = 0;
+    private int stabilizersCollected = 0;
+    private int bypassesCollected = 0;
+    private int maxWormholeScore = 0;
+    private boolean enteredWormhole = false;
+    private boolean usedHeadStart = false;
+    private boolean hadCloseCall = false;
+
     // Node Spawning Variables
     private final float nodeSize = 60f;
     private float howFarAheadToSpawn, whenToSpawnMore, howWideToSpawn, spaceBetweenNodes, lastNodeSpawnY = 0;
@@ -224,6 +235,13 @@ public class GameLogic extends View
                     if (!node.isInClickRange())
                     {
                         return true;
+                    }
+
+                    // Checking for the "Very, very close call" achievement
+                    float currentRangeSize = clickRangeBottom - clickRangeTop;
+                    if (currentRangeSize <= 10 && gameStarted)
+                    {
+                        hadCloseCall = true;
                     }
 
                     // Start the game on the first node click
@@ -590,12 +608,23 @@ public class GameLogic extends View
     {
         if (powerUpType != POWERUP_NONE && powerUpType != POWERUP_HIJACKED)
         {
+            powerUpsCollected++;
             playSound(SoundManager.SFX_POWERUP);
+
+            if (powerUpType == POWERUP_TUNNELLER)
+                tunnellersCollected++;
+            else if (powerUpType == POWERUP_RANGE_ENHANCER)
+                rangeEnhancersCollected++;
+            else if (powerUpType == POWERUP_CONNECTION_STABILIZER)
+                stabilizersCollected++;
+            else if (powerUpType == POWERUP_SIGNAL_BYPASS)
+                bypassesCollected++;
         }
         long currentTime = System.currentTimeMillis();
 
         if (powerUpType == POWERUP_WORMHOLE)
         {
+            enteredWormhole = true;
             if (getContext() instanceof GameScene)
             {
                 ((GameScene) getContext()).enterWormhole();
@@ -1238,6 +1267,7 @@ public class GameLogic extends View
     {
         isTunnellerActive = true;
         isHeadStartMode = true;
+        usedHeadStart = true;
     }
     @Override
     protected void onDetachedFromWindow()
@@ -1248,4 +1278,17 @@ public class GameLogic extends View
     {
         return isPaused;
     }
+
+    // Achievement getter & setter functions (for achievement tracking)
+    public int getPowerUpsCollected() { return powerUpsCollected; }
+    public int getTunnellersCollected() { return tunnellersCollected; }
+    public int getRangeEnhancersCollected() { return rangeEnhancersCollected; }
+    public int getStabilizersCollected() { return stabilizersCollected; }
+    public int getBypassesCollected() { return bypassesCollected; }
+    public int getMaxWormholeScore() { return maxWormholeScore; }
+    public boolean getEnteredWormhole() { return enteredWormhole; }
+    public boolean getUsedHeadStart() { return usedHeadStart; }
+    public boolean getHadCloseCall() { return hadCloseCall; }
+    public int getNodesClicked() { return nodesClicked; }
+    public void setMaxWormholeScore(int score) { maxWormholeScore = score; }
 }

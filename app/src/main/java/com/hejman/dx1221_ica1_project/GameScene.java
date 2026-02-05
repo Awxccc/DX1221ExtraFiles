@@ -31,7 +31,7 @@ public class GameScene extends Activity
     private Button pauseButton;
     private MinigameLogic minigameLogic;
 
-    //Audio
+    // Audios
     private MediaPlayer bgmPlayer;
     private SoundPool soundPool;
     private int playerLostId;
@@ -199,6 +199,7 @@ public class GameScene extends Activity
             @Override
             public void run()
             {
+                checkAndUnlockAchievements(finalScore);
                 showGameWin(finalScore);
             }
         });
@@ -212,9 +213,64 @@ public class GameScene extends Activity
             @Override
             public void run()
             {
+                checkAndUnlockAchievements(finalScore);
                 showGameOver(finalScore);
             }
         });
+    }
+
+    private void checkAndUnlockAchievements(int finalScore)
+    {
+        AchievementManager achievementmanager = new AchievementManager(this);
+        int totalPowerups = gameLogic.getPowerUpsCollected();
+        int tunnellers = gameLogic.getTunnellersCollected();
+        int rangeEnhancers = gameLogic.getRangeEnhancersCollected();
+        int stabilizers = gameLogic.getStabilizersCollected();
+        int bypasses = gameLogic.getBypassesCollected();
+        int maxWormholeScore = gameLogic.getMaxWormholeScore();
+
+        if (gameLogic.getScore() >= 200)
+            achievementmanager.unlockAchievement(0);
+        if (gameLogic.getScore() >= 500)
+            achievementmanager.unlockAchievement(1);
+        if (gameLogic.getScore() >= 1000)
+            achievementmanager.unlockAchievement(2);
+        if (gameLogic.getScore() >= 2500)
+            achievementmanager.unlockAchievement(3);
+        if (totalPowerups >= 10)
+            achievementmanager.unlockAchievement(4);
+        if (totalPowerups >= 25)
+            achievementmanager.unlockAchievement(5);
+        if (tunnellers >= 5)
+            achievementmanager.unlockAchievement(6);
+        if (tunnellers >= 10)
+            achievementmanager.unlockAchievement(7);
+        if (rangeEnhancers >= 5)
+            achievementmanager.unlockAchievement(8);
+        if (rangeEnhancers >= 10)
+            achievementmanager.unlockAchievement(9);
+        if (stabilizers >= 5)
+            achievementmanager.unlockAchievement(10);
+        if (stabilizers >= 10)
+            achievementmanager.unlockAchievement(11);
+        if (bypasses >= 5)
+            achievementmanager.unlockAchievement(12);
+        if (bypasses >= 10)
+            achievementmanager.unlockAchievement(13);
+        if (gameLogic.getUsedHeadStart())
+            achievementmanager.unlockAchievement(14);
+        if (gameLogic.getEnteredWormhole())
+            achievementmanager.unlockAchievement(15);
+        if (maxWormholeScore >= 1000)
+            achievementmanager.unlockAchievement(16);
+        if (maxWormholeScore >= 2500)
+            achievementmanager.unlockAchievement(17);
+        if (gameLogic.getHadCloseCall())
+            achievementmanager.unlockAchievement(18);
+        if (gameLogic.getNodesClicked() == 1)
+            achievementmanager.unlockAchievement(19);
+        if (gameLogic.getScore() >= 2490 && gameLogic.getScore() < 2500)
+            achievementmanager.unlockAchievement(20);
     }
 
     // Show the win screen with final score
@@ -334,9 +390,17 @@ public class GameScene extends Activity
                 minigameLogic.stopMinigame();
                 minigameLogic.setVisibility(View.GONE);
                 gameLogic.addBonusScore(bonusPoints);
+
+                // Track maximum wormhole score for achievements
+                if (bonusPoints > gameLogic.getMaxWormholeScore())
+                {
+                    gameLogic.setMaxWormholeScore(bonusPoints);
+                }
+
                 gameLogic.resumeGame();
                 gameLogic.setVisibility(View.VISIBLE);
                 pauseButton.setVisibility(View.VISIBLE);
+
                 // Show alert
                 if (milestoneAlertText != null)
                 {
