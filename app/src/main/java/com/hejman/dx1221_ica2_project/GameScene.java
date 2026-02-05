@@ -1,6 +1,7 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.activity.OnBackPressedCallback;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 
-public class GameScene extends Activity
+public class GameScene extends AppCompatActivity
 {
     // Variables
     private GameLogic gameLogic;
@@ -69,6 +70,12 @@ public class GameScene extends Activity
         closeInstructionsBtn = findViewById(R.id.close_instructions_btn);
         milestoneAlertText = findViewById(R.id.milestone_alert_text);
         SoundManager.getInstance(this).playBGM(R.raw.gamescene_bgm);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showPauseDialog();
+            }
+        });
         closeInstructionsBtn.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -437,11 +444,6 @@ public class GameScene extends Activity
                     pauseButton.setText("PAUSE");
                 })
                 .show();
-    }
-    @Override
-    public void onBackPressed()
-    {
-        showPauseDialog();
     }
 
     @Override

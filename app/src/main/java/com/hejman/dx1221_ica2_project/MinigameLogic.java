@@ -1,4 +1,4 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
-
+//Done by Hejy
 public class MinigameLogic extends View implements SensorEventListener
 {
     // Variables

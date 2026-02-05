@@ -1,15 +1,12 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
+//Done by Jonathan
 public class ShopManager {
     private static final String PREF_NAME = "GameShop";
     private static final String KEY_CURRENCY = "currency";
 
-    // Base costs
-    private static final int UNLOCK_COST = 1;
-    private static final int UPGRADE_COST_BASE = 2;
     private final int[] ALL_POWERUPS = {1, 2, 3, 5};
     private final SharedPreferences prefs;
     private static final String KEY_HEADSTART = "headstart_bought";
@@ -18,11 +15,27 @@ public class ShopManager {
     // Cosmetics
     private static final String KEY_EQUIPPED_COLOR = "equipped_color";
     private static final String KEY_COLOR_UNLOCKED = "color_unlocked_";
-    public static final int COSMETIC_COST = 100;
+    public static final int[] COSMETIC_COSTS = {0, 100, 500, 1000, 0, 0, 0};
+    public static final int[] COSMETIC_ACHIEVEMENT_REQ = {-1, -1, -1, -1, 2, 15, 19};
     public static final int COLOR_ID_DEFAULT = 0;
-    public static final int[] COLOR_VALUES = {0xFFB4FFAF, 0xFF4169E1, 0xFFFFD700, 0xFFFF69B4};
-    public static final String[] COLOR_NAMES = {"Mint (Default)", "Royal Blue", "Gold", "Hot Pink"};
-
+    public static final int[] COLOR_VALUES = {
+            0xFFB4FFAF, //Mint
+            0xFF4169E1, //Royal Blue
+            0xFFFFD700, //Gold
+            0xFFFF69B4, //Hot Pink
+            0xFFDC143C, //Crimson (Achievement 2)
+            0xFF9932CC, //Cosmic Purple (Achievement 15)
+            0xFFD3D3D3  //Light Grey (Achievement 19)
+    };
+    public static final String[] COLOR_NAMES = {
+            "Mint (Default)",
+            "Royal Blue",
+            "Gold",
+            "Hot Pink",
+            "Crimson",
+            "Cosmic Purple",
+            "Light Grey"
+    };
     public ShopManager(Context context)
     {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -108,7 +121,7 @@ public class ShopManager {
         {
             if (isColorUnlocked(i))
             {
-                totalRefund += COSMETIC_COST;
+                totalRefund += getCosmeticCost(i);
                 prefs.edit().remove(KEY_COLOR_UNLOCKED + i).apply();
             }
         }
@@ -166,5 +179,13 @@ public class ShopManager {
     public void equipColor(int colorId)
     {
         prefs.edit().putInt(KEY_EQUIPPED_COLOR, colorId).apply();
+    }
+    public int getCosmeticCost(int colorId)
+    {
+        if (colorId >= 0 && colorId < COSMETIC_COSTS.length)
+        {
+            return COSMETIC_COSTS[colorId];
+        }
+        return 9999;
     }
 }

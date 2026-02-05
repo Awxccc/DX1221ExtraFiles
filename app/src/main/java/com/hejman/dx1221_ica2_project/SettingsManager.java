@@ -1,10 +1,11 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.SeekBar;
 import android.widget.ImageButton;
 import android.view.View;
+//Done by Jonathan
 public class SettingsManager
 {
     private static final String PREF_NAME = "GameSettings";
@@ -35,7 +36,6 @@ public class SettingsManager
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
                 saveMusicVolume(progress);
-                // Now musicListener is recognized and can be called
                 if (fromUser && musicListener != null)
                 {
                     musicListener.onVolumeChanged(progress);
@@ -58,9 +58,11 @@ public class SettingsManager
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        tiltSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        tiltSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+        {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
                 saveTiltSensitivity(progress);
             }
 

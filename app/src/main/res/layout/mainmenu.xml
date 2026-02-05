@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true">
 
     <!-- Background Particle Effect -->
-    <com.hejman.dx1221_ica1_project.MainMenu_Particle
+    <com.hejman.dx1221_ica2_project.MainMenu_Particle
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"

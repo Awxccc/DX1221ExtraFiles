@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.hejman.dx1221_ica1_project"
+    namespace = "com.hejman.dx1221_ica2_project"
     compileSdk {
         version = release(36)
     }

@@ -1,11 +1,11 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import java.util.HashMap;
-
+//Done by Jonathan
 public class SoundManager
 {
     private static SoundManager instance;
@@ -134,13 +134,6 @@ public class SoundManager
             bgmPlayer.pause();
         }
     }
-
-    public void resumeBGM() {
-        if (bgmPlayer != null && !bgmPlayer.isPlaying()) {
-            bgmPlayer.start();
-        }
-    }
-
     public void updateMusicVolume()
     {
         if (bgmPlayer != null)
@@ -148,15 +141,5 @@ public class SoundManager
             float volume = settingsManager.getMusicVolume() / 100f;
             bgmPlayer.setVolume(volume, volume);
         }
-    }
-    public void release()
-    {
-        stopBGM();
-        if (soundPool != null)
-        {
-            soundPool.release();
-            soundPool = null;
-        }
-        instance = null;
     }
 }

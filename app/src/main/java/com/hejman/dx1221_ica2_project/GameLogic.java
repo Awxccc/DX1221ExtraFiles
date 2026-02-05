@@ -1,4 +1,4 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,13 +9,14 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.media.AudioAttributes;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.Random;
-import android.media.AudioAttributes;
-import android.media.SoundPool;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
 
 public class GameLogic extends View
 {
@@ -118,6 +119,8 @@ public class GameLogic extends View
     private ShopManager shopManager;
 
     private boolean isHeadStartMode = false;
+
+    private Vibrator vibrator;
 
     private class Node
     {
@@ -252,10 +255,10 @@ public class GameLogic extends View
                         lastShrinkTime = System.currentTimeMillis();
                         playSound(SoundManager.SFX_GAME_START);
 
-                        if (pendingHeadStart)
+                        if (shopManager.isHeadStartPurchased())
                         {
+                            shopManager.consumeHeadStart();
                             activateHeadStart();
-                            pendingHeadStart = false;
                         }
                     }
                     else
@@ -348,10 +351,7 @@ public class GameLogic extends View
     {
         super(context, attrs);
         shopManager = new ShopManager(context);
-        if (shopManager.consumeHeadStart())
-        {
-            pendingHeadStart = true;
-        }
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         setupColours();
     }
 
@@ -610,6 +610,7 @@ public class GameLogic extends View
         {
             powerUpsCollected++;
             playSound(SoundManager.SFX_POWERUP);
+            triggerVibration(500);
 
             if (powerUpType == POWERUP_TUNNELLER)
                 tunnellersCollected++;
@@ -1073,6 +1074,7 @@ public class GameLogic extends View
         deathPaint = new Paint();
         deathPaint.setColorFilter(currentPaint.getColorFilter());
         deathPaint.setAntiAlias(true);
+        triggerVibration(1000);
     }
 
     private Paint getCurrentPlayerPaint() {
@@ -1269,6 +1271,20 @@ public class GameLogic extends View
         isHeadStartMode = true;
         usedHeadStart = true;
     }
+
+    private void triggerVibration(long milliseconds)
+    {
+        if (vibrator != null && vibrator.hasVibrator())
+        {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .build();
+
+            vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, 255), audioAttributes);
+        }
+    }
+
     @Override
     protected void onDetachedFromWindow()
     {

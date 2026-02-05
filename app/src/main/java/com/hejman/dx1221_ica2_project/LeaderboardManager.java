@@ -1,9 +1,9 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import java.util.ArrayList;
-
+//Done by Hejy
 public class LeaderboardManager
 {
     // Variables

@@ -1,4 +1,4 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.app.Activity;
 import android.content.Context;
@@ -115,6 +115,11 @@ public class MainMenu extends Activity
 
         resetAchievementsButton.setOnClickListener(v -> {
             playClickSound();
+            int currentSkin = shopManager.getEquippedColorId();
+            if (ShopManager.COSMETIC_ACHIEVEMENT_REQ[currentSkin] != -1)
+            {
+                shopManager.equipColor(ShopManager.COLOR_ID_DEFAULT);
+            }
             achievementManager.resetAllAchievements();
             updateAchievementsDisplay();
         });
@@ -373,6 +378,7 @@ public class MainMenu extends Activity
         infoText.setTextColor(color);
 
         final Button buyBtn = new Button(this);
+        buyBtn.setBackgroundResource(R.drawable.button_style);
         buyBtn.setTextColor(0xFFFFFFFF);
         buyBtn.setPadding(20, 10, 20, 10);
 
@@ -423,9 +429,10 @@ public class MainMenu extends Activity
 
         final TextView infoText = new TextView(this);
         infoText.setTextSize(18);
-        infoText.setTextColor(0xFFFFFF00); // Yellow/Gold color to make it stand out
+        infoText.setTextColor(0xFFFFFF00);
 
         final Button buyBtn = new Button(this);
+        buyBtn.setBackgroundResource(R.drawable.button_style);
         buyBtn.setTextColor(0xFFFFFFFF);
         buyBtn.setPadding(20, 10, 20, 10);
 
@@ -488,6 +495,7 @@ public class MainMenu extends Activity
         infoText.setTextColor(ShopManager.COLOR_VALUES[colorId]);
 
         final Button actionBtn = new Button(this);
+        actionBtn.setBackgroundResource(R.drawable.button_style);
         actionBtn.setTextColor(0xFFFFFFFF);
         actionBtn.setPadding(20, 10, 20, 10);
 
@@ -496,14 +504,35 @@ public class MainMenu extends Activity
 
         infoText.setText(ShopManager.COLOR_NAMES[colorId]);
 
-        if (isEquipped)
+        int cost = shopManager.getCosmeticCost(colorId);
+
+        int reqAchId = ShopManager.COSMETIC_ACHIEVEMENT_REQ[colorId];
+        boolean isAchLocked = false;
+
+        if (reqAchId != -1)
+        {
+            if (!achievementManager.isAchievementUnlocked(reqAchId))
+            {
+                isAchLocked = true;
+            }
+        }
+
+        if (isAchLocked)
+        {
+            String achName = achievementManager.getAchievementName(reqAchId);
+            infoText.setText(ShopManager.COLOR_NAMES[colorId] + "\nRequires: " + achName);
+            actionBtn.setText("LOCKED");
+            actionBtn.setEnabled(false);
+            actionBtn.setAlpha(0.5f);
+        }
+        else if (isEquipped)
         {
             actionBtn.setText("EQUIPPED");
             actionBtn.setEnabled(false);
             actionBtn.setAlpha(0.5f);
             actionBtn.setTextColor(0xFF00FF00);
         }
-        else if (isUnlocked)
+        else if (isUnlocked || cost == 0)
         {
             actionBtn.setText("EQUIP");
             actionBtn.setEnabled(true);
@@ -516,14 +545,14 @@ public class MainMenu extends Activity
         }
         else
         {
-            actionBtn.setText("BUY - " + ShopManager.COSMETIC_COST + " Coins");
-            if (shopManager.getCurrency() >= ShopManager.COSMETIC_COST)
+            actionBtn.setText("BUY - " + ShopManager.COSMETIC_COSTS[colorId] + " Coins");
+            if (shopManager.getCurrency() >= cost)
             {
                 actionBtn.setEnabled(true);
                 actionBtn.setAlpha(1.0f);
                 actionBtn.setOnClickListener(v -> {
                     playClickSound();
-                    if (shopManager.spendCurrency(ShopManager.COSMETIC_COST))
+                    if (shopManager.spendCurrency(ShopManager.COSMETIC_COSTS[colorId]))
                     {
                         shopManager.unlockColor(colorId);
                         shopManager.equipColor(colorId);

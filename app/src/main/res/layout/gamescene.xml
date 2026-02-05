@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true">
 
     <!-- Background Particle Effect -->
-    <com.hejman.dx1221_ica1_project.MainMenu_Particle
+    <com.hejman.dx1221_ica2_project.MainMenu_Particle
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -17,7 +17,7 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Game view -->
-    <com.hejman.dx1221_ica1_project.GameLogic
+    <com.hejman.dx1221_ica2_project.GameLogic
         android:id="@+id/game_logic"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,7 +25,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_bar_image" />
 
     <!--  Minigame view  -->
-    <com.hejman.dx1221_ica1_project.MinigameLogic
+    <com.hejman.dx1221_ica2_project.MinigameLogic
         android:id="@+id/minigame_logic"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -103,8 +103,8 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:text="X"
-                    android:textSize="18sp"
-                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textColor="#FF0000"
                     android:textStyle="bold"
                     android:background="@android:color/transparent"
                     android:layout_alignParentEnd="true"
@@ -151,11 +151,11 @@
         android:layout_height="40dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/button_style"
         android:text="PAUSE"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/button_style" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

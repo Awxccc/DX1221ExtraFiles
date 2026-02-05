@@ -1,4 +1,4 @@
-package com.hejman.dx1221_ica1_project;
+package com.hejman.dx1221_ica2_project;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
